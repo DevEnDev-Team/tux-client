@@ -85,7 +85,7 @@ void NotesManager::start() {
                 if (merged.empty() && !hadNotes) {
                     NoteModel defaultNote;
                     defaultNote.id = generateUniqueId();
-                    defaultNote.content = "Bienvenue dans vos notes Tux-It !\n\nDouble-cliquez pour éditer.\nFaites un clic droit pour changer la couleur ou l'opacité.";
+                    defaultNote.content = "Bienvenue dans vos notes Tux-It !\n\nDouble-cliquez pour éditer.\nFaites un clic droit pour changer la couleur.";
                     defaultNote.color = "#FFF59D"; // Jaune par défaut
                     defaultNote.position = QPoint(150, 150);
                     defaultNote.size = QSize(250, 250);
@@ -193,7 +193,7 @@ void NotesManager::createNoteWindow(const NoteModel& note) {
 void NotesManager::createDefaultNote() {
     NoteModel defaultNote;
     defaultNote.id = generateUniqueId();
-    defaultNote.content = "Bienvenue dans vos notes Tux-It !\n\nDouble-cliquez pour éditer.\nFaites un clic droit pour changer la couleur ou l'opacité.";
+    defaultNote.content = "Bienvenue dans vos notes Tux-It !\n\nDouble-cliquez pour éditer.\nFaites un clic droit pour changer la couleur.";
     defaultNote.color = "#FFF59D"; // Jaune par défaut
     defaultNote.position = QPoint(150, 150);
     defaultNote.size = QSize(250, 250);

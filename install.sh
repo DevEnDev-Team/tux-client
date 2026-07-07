@@ -6,7 +6,7 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-echo -e "${BLUE}=== Installation de Tux-It (Mignon Renard) ===${NC}"
+echo -e "${BLUE}=== Installation de Tux-It ===${NC}"
 
 # 1. Compilation en mode Release
 echo -e "${BLUE}1. Compilation du projet...${NC}"
