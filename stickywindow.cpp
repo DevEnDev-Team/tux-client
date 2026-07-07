@@ -394,7 +394,7 @@ void StickyWindow::showContextMenu(const QPoint& pos) {
     actionLock->setCheckable(true);
     actionLock->setChecked(m_model.locked);
 
-    bool autostartEnabled = QFile::exists(QDir::homePath() + "/.config/autostart/post-it.desktop");
+    bool autostartEnabled = QFile::exists(QDir::homePath() + "/.config/autostart/tux-it.desktop");
     QAction* actionAutostart = menu.addAction("Lancer au démarrage");
     actionAutostart->setCheckable(true);
     actionAutostart->setChecked(autostartEnabled);
@@ -779,7 +779,7 @@ QIcon StickyWindow::createBoldIcon() {
 void StickyWindow::toggleAutostart() {
     QString homePath = QDir::homePath();
     QString autostartDir = homePath + "/.config/autostart";
-    QString autostartPath = autostartDir + "/post-it.desktop";
+    QString autostartPath = autostartDir + "/tux-it.desktop";
 
     if (QFile::exists(autostartPath)) {
         QFile::remove(autostartPath);
@@ -789,10 +789,10 @@ void StickyWindow::toggleAutostart() {
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream out(&file);
             out << "[Desktop Entry]\n"
-                << "Name=Post-It\n"
+                << "Name=Tux-It\n"
                 << "Comment=Vos post-its mignons sur le bureau\n"
-                << "Exec=" << homePath << "/.local/bin/post-it\n"
-                << "Icon=" << homePath << "/.local/share/icons/post-it.png\n"
+                << "Exec=" << homePath << "/.local/bin/tux-it\n"
+                << "Icon=" << homePath << "/.local/share/icons/tux-it.png\n"
                 << "Terminal=false\n"
                 << "Type=Application\n"
                 << "Categories=Utility;Office;\n"

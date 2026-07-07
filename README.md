@@ -1,6 +1,6 @@
-# 💻 Client Desktop Post-It (Qt6)
+# 💻 Client Desktop Tux-It (Qt6)
 
-Ce dépôt contient le client Desktop de l'application **Post-It**, écrit en **C++** avec le framework **Qt6**. C'est une application de notes adhésives (stickies) moderne, légère et adorable pour Linux.
+Ce dépôt contient le client Desktop de l'application **Tux-It**, écrit en **C++** avec le framework **Qt6**. C'est une application de notes adhésives (stickies) moderne, légère et adorable pour Linux.
 
 Il s'intègre parfaitement avec notre serveur de synchronisation Go pour sauvegarder vos notes sur vos différents appareils.
 
@@ -38,13 +38,13 @@ chmod +x install.sh
 ```
 Ce script va :
 1. Compiler l'application en mode Release.
-2. Copier l'exécutable final dans `~/.local/bin/post-it`.
+2. Copier l'exécutable final dans `~/.local/bin/tux-it`.
 
 ### 🏎️ Lancement
 
 Démarrez l'application depuis votre terminal ou via votre menu d'applications :
 ```bash
-post-it
+tux-it
 ```
 
 ---
@@ -56,7 +56,7 @@ Pour retirer l'application du système, exécutez :
 chmod +x uninstall.sh
 ./uninstall.sh
 ```
-*Note : Vos données locales et configurations situées dans `~/.config/DevEnDev/Post-It/` ne sont pas effacées pour éviter toute perte accidentelle.*
+*Note : Vos données locales et configurations situées dans `~/.config/DevEnDev/Tux-It/` ne sont pas effacées pour éviter toute perte accidentelle.*
 
 ---
 

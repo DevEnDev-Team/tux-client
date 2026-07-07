@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(post-it VERSION 1.0.0 LANGUAGES CXX)
+project(tux-it VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,7 +11,7 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Network)
 
-add_executable(post-it
+add_executable(tux-it
     main.cpp
     notemodel.h
     istorageprovider.h
@@ -30,4 +30,4 @@ add_executable(post-it
     resources.qrc
 )
 
-target_link_libraries(post-it PRIVATE Qt6::Widgets Qt6::Network)
+target_link_libraries(tux-it PRIVATE Qt6::Widgets Qt6::Network)

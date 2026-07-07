@@ -174,7 +174,7 @@ void SetupWizard::createDesktopLauncher() {
     // 1. Exporter l'icône de bureau
     QString iconDir = homePath + "/.local/share/icons";
     QDir().mkpath(iconDir);
-    QString iconPath = iconDir + "/post-it.png";
+    QString iconPath = iconDir + "/tux-it.png";
     
     QIcon icon = StickyWindow::createFoxIcon();
     QPixmap pixmap = icon.pixmap(256, 256);
@@ -183,17 +183,17 @@ void SetupWizard::createDesktopLauncher() {
     // 2. S'assurer que le dossier des applications existe
     QString appDir = homePath + "/.local/share/applications";
     QDir().mkpath(appDir);
-    QString desktopPath = appDir + "/post-it.desktop";
+    QString desktopPath = appDir + "/tux-it.desktop";
 
     // 3. Écrire le fichier desktop
     QFile file(desktopPath);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out(&file);
         out << "[Desktop Entry]\n"
-            << "Name=Post-It\n"
+            << "Name=Tux-It\n"
             << "Comment=Vos post-its mignons sur le bureau\n"
-            // Comme le binaire principal sera copié dans ~/.local/bin/post-it par l'installateur
-            << "Exec=" << homePath << "/.local/bin/post-it\n"
+            // Comme le binaire principal sera copié dans ~/.local/bin/tux-it par l'installateur
+            << "Exec=" << homePath << "/.local/bin/tux-it\n"
             << "Icon=" << iconPath << "\n"
             << "Terminal=false\n"
             << "Type=Application\n"
@@ -209,15 +209,15 @@ void SetupWizard::createDesktopLauncher() {
         if (m_autostartCheckbox->isChecked()) {
             QString autostartDir = homePath + "/.config/autostart";
             QDir().mkpath(autostartDir);
-            QString autostartPath = autostartDir + "/post-it.desktop";
+            QString autostartPath = autostartDir + "/tux-it.desktop";
 
             QFile autostartFile(autostartPath);
             if (autostartFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
                 QTextStream outAuto(&autostartFile);
                 outAuto << "[Desktop Entry]\n"
-                        << "Name=Post-It\n"
+                        << "Name=Tux-It\n"
                         << "Comment=Vos post-its mignons sur le bureau\n"
-                        << "Exec=" << homePath << "/.local/bin/post-it\n"
+                        << "Exec=" << homePath << "/.local/bin/tux-it\n"
                         << "Icon=" << iconPath << "\n"
                         << "Terminal=false\n"
                         << "Type=Application\n"

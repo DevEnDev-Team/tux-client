@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
     
-    app.setApplicationName("Post-It");
+    app.setApplicationName("Tux-It");
     app.setApplicationVersion("1.0.0");
     app.setOrganizationName("DevEnDev");
     app.setWindowIcon(StickyWindow::createFoxIcon());

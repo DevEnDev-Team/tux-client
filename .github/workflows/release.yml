@@ -44,7 +44,7 @@ jobs:
           make -j$(nproc)
           cd ..
           # Package le client avec les scripts d'installation/désinstallation
-          zip -j tux-client-linux.zip build/post-it install.sh uninstall.sh
+          zip -j tux-client-linux.zip build/tux-it install.sh uninstall.sh
 
       # 3. Création automatique du tag Git s'il n'existe pas encore (sur push main)
       - name: Push Git Tag
@@ -76,7 +76,7 @@ jobs:
             Voici le binaire précompilé pour l'application cliente de notes adhésives Tux-It pour Linux.
             
             ### 📦 Fichier inclus :
-            * **`tux-client-linux.zip`** : Contient l'application client `post-it` compilée pour Linux, ainsi que les scripts d'installation `install.sh` et de désinstallation `uninstall.sh`.
+            * **`tux-client-linux.zip`** : Contient l'application client `tux-it` compilée pour Linux, ainsi que les scripts d'installation `install.sh` et de désinstallation `uninstall.sh`.
             
             ---
             
@@ -87,7 +87,7 @@ jobs:
                chmod +x install.sh
                ./install.sh
                ```
-            3. Démarrez l'application avec la commande : `post-it`
+            3. Démarrez l'application avec la commande : `tux-it`
           draft: false
           prerelease: false
           files: |

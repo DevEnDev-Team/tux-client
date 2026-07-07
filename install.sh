@@ -6,7 +6,7 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-echo -e "${BLUE}=== Installation de Post-It (Mignon Renard) ===${NC}"
+echo -e "${BLUE}=== Installation de Tux-It (Mignon Renard) ===${NC}"
 
 # 1. Compilation en mode Release
 echo -e "${BLUE}1. Compilation du projet...${NC}"
@@ -22,12 +22,12 @@ mkdir -p "$HOME/.local/bin"
 
 # 3. Copie de l'exécutable
 echo -e "${BLUE}3. Copie de l'exécutable vers ~/.local/bin/...${NC}"
-if [ -f "$HOME/.local/bin/post-it" ]; then
-    rm -f "$HOME/.local/bin/post-it.old" || true
-    mv "$HOME/.local/bin/post-it" "$HOME/.local/bin/post-it.old" || true
+if [ -f "$HOME/.local/bin/tux-it" ]; then
+    rm -f "$HOME/.local/bin/tux-it.old" || true
+    mv "$HOME/.local/bin/tux-it" "$HOME/.local/bin/tux-it.old" || true
 fi
-cp build/post-it "$HOME/.local/bin/post-it"
-chmod +x "$HOME/.local/bin/post-it"
+cp build/tux-it "$HOME/.local/bin/tux-it"
+chmod +x "$HOME/.local/bin/tux-it"
 
 echo -e "${GREEN}=== Installation réussie ! ===${NC}"
-echo -e "Veuillez lancer l'application avec : ${GREEN}post-it${NC} (ou depuis ~/.local/bin/post-it) pour terminer la configuration graphique."
+echo -e "Veuillez lancer l'application avec : ${GREEN}tux-it${NC} (ou depuis ~/.local/bin/tux-it) pour terminer la configuration graphique."
