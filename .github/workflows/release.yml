@@ -1,0 +1,96 @@
+name: Build and Release Client
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release-client:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 1. Extraction de la version à partir du CMakeLists.txt local
+      - name: Extract project version
+        id: get_version
+        run: |
+          VERSION=$(grep -oP 'project\([^)]*VERSION \K[0-9.]+' CMakeLists.txt)
+          TAG_NAME="v$VERSION"
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "tag=$TAG_NAME" >> $GITHUB_ENV
+          echo "Version extraite : $VERSION (Tag : $TAG_NAME)"
+
+      # 2. Installation des dépendances Qt6 et compilation du client Desktop
+      - name: Install Qt6 and dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake qt6-base-dev qt6-base-private-dev libgl1-mesa-dev libx11-xcb-dev libxcb-keysyms1-dev libxcb-util-dev zip
+
+      - name: Build Qt6 Client
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make -j$(nproc)
+          cd ..
+          # Package le client avec les scripts d'installation/désinstallation
+          zip -j tux-client-linux.zip build/post-it install.sh uninstall.sh
+
+      # 3. Création automatique du tag Git s'il n'existe pas encore (sur push main)
+      - name: Push Git Tag
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if git rev-parse "${{ env.tag }}" >/dev/null 2>&1; then
+            echo "Le tag ${{ env.tag }} existe déjà. Utilisation d'un tag de build automatique."
+            UNIQUE_TAG="${{ env.tag }}-build-${{ github.run_number }}"
+            echo "tag=$UNIQUE_TAG" >> $GITHUB_ENV
+            git tag $UNIQUE_TAG
+            git push origin $UNIQUE_TAG
+          else
+            echo "Création du tag ${{ env.tag }}"
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git tag ${{ env.tag }}
+            git push origin ${{ env.tag }}
+          fi
+
+      # 4. Publication de la Release avec le binaire précompilé
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.tag }}
+          name: "Tux-Client - Version ${{ env.version }} 🦊"
+          body: |
+            ## 🦊 Tux-Client Release - Version ${{ env.version }}
+            
+            Voici le binaire précompilé pour l'application cliente de notes adhésives Tux-It pour Linux.
+            
+            ### 📦 Fichier inclus :
+            * **`tux-client-linux.zip`** : Contient l'application client `post-it` compilée pour Linux, ainsi que les scripts d'installation `install.sh` et de désinstallation `uninstall.sh`.
+            
+            ---
+            
+            ### 🚀 Instructions d'installation :
+            1. Téléchargez et extrayez le fichier `tux-client-linux.zip`.
+            2. Lancez l'installation locale :
+               ```bash
+               chmod +x install.sh
+               ./install.sh
+               ```
+            3. Démarrez l'application avec la commande : `post-it`
+          draft: false
+          prerelease: false
+          files: |
+            tux-client-linux.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
