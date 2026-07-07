@@ -62,15 +62,12 @@ void NotesManager::start() {
     m_notes = m_storage->loadNotes();
     bool hadNotes = !m_notes.empty();
 
-    // Afficher immédiatement les notes locales existantes pour la réactivité
-    for (const auto& note : m_notes) {
-        if (!note.archived && !note.trashed) {
-            createNoteWindow(note);
-        }
-    }
-
+    // Au démarrage, s'il y a des notes existantes, on lance uniquement la liste.
+    // Sinon, s'il n'y a pas de synchronisation réseau active, on crée la note de bienvenue par défaut.
     if (hadNotes) {
         onShowNotesListRequested();
+    } else if (!m_sync->isEnabled()) {
+        createDefaultNote();
     }
 
     // Lancer la synchronisation réseau si configurée
@@ -312,6 +309,7 @@ void NotesManager::onShowNotesListRequested() {
         m_listWindow->setAttribute(Qt::WA_DeleteOnClose);
         connect(m_listWindow, &NotesListWindow::openNoteRequested, this, &NotesManager::onOpenNoteFromListRequested);
         connect(m_listWindow, &NotesListWindow::deleteNoteRequested, this, &NotesManager::onDeleteNoteFromListRequested);
+        connect(m_listWindow, &NotesListWindow::newNoteRequested, this, &NotesManager::onNewNoteRequested);
         connect(m_listWindow, &QObject::destroyed, this, [this]() {
             m_listWindow = nullptr;
             if (m_windows.empty()) {
@@ -523,12 +521,6 @@ void NotesManager::updateWindowsFromNotes() {
         }
     }
 
-    // 2. Créer des fenêtres pour les nouvelles notes distantes
-    for (const auto& note : m_notes) {
-        if (!note.archived && !note.trashed) {
-            if (m_windows.find(note.id) == m_windows.end()) {
-                createNoteWindow(note);
-            }
-        }
-    }
+    // 2. On ne crée plus automatiquement des fenêtres à l'écran pour les nouvelles notes distantes.
+    // L'utilisateur les verra dans le tableau de bord (liste) et pourra les ouvrir en un clic.
 }

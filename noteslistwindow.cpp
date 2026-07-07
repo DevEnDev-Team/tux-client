@@ -198,6 +198,8 @@ void NotesListWindow::setupUi() {
         "QLabel#mainTitle { font-weight: bold; font-size: 16px; color: #ffffff; }"
         "QLineEdit#searchEdit { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 8px; padding: 6px 12px; color: #ffffff; font-size: 12px; }"
         "QLineEdit#searchEdit:focus { border: 1px solid #90CAF9; }"
+        "QPushButton#newNoteBtn { background-color: #2e7d32; border: none; border-radius: 8px; padding: 6px 16px; color: #ffffff; font-weight: bold; font-size: 12px; }"
+        "QPushButton#newNoteBtn::hover { background-color: #1b5e20; }"
         "QListWidget { background-color: transparent; border: none; }"
         "QPushButton#closeBtn { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 6px; padding: 6px 16px; color: #ffffff; font-size: 12px; }"
         "QPushButton#closeBtn::hover { background-color: #3f3f50; }"
@@ -207,11 +209,19 @@ void NotesListWindow::setupUi() {
     label->setObjectName("mainTitle");
     mainLayout->addWidget(label);
 
-    // Barre de recherche
+    // Barre de recherche et bouton Nouveau note
+    QHBoxLayout* searchLayout = new QHBoxLayout();
     m_searchEdit = new QLineEdit(this);
     m_searchEdit->setObjectName("searchEdit");
     m_searchEdit->setPlaceholderText("Rechercher dans les notes Tux-It...");
-    mainLayout->addWidget(m_searchEdit);
+    
+    QPushButton* newNoteBtn = new QPushButton("Nouveau Tux-It", this);
+    newNoteBtn->setObjectName("newNoteBtn");
+    newNoteBtn->setCursor(Qt::PointingHandCursor);
+    
+    searchLayout->addWidget(m_searchEdit, 1);
+    searchLayout->addWidget(newNoteBtn);
+    mainLayout->addLayout(searchLayout);
 
     // Grille de Post-its (QListWidget en mode liste verticale)
     m_listWidget = new QListWidget(this);
@@ -234,6 +244,7 @@ void NotesListWindow::setupUi() {
 
     // Connections
     connect(m_searchEdit, &QLineEdit::textChanged, this, &NotesListWindow::filterNotes);
+    connect(newNoteBtn, &QPushButton::clicked, this, &NotesListWindow::newNoteRequested);
     connect(m_closeButton, &QPushButton::clicked, this, &NotesListWindow::close);
 }
 

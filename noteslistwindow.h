@@ -45,6 +45,7 @@ public:
 signals:
     void openNoteRequested(const QString& id);
     void deleteNoteRequested(const QString& id);
+    void newNoteRequested();
 
 private slots:
     void filterNotes(const QString& text);
