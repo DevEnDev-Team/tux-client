@@ -411,7 +411,7 @@ void NotesManager::setupTrayIcon() {
 
     m_trayIcon = new QSystemTrayIcon(this);
     m_trayIcon->setIcon(StickyWindow::createFoxIcon());
-    m_trayIcon->setToolTip("Tux-It (Renard Mignon)");
+    m_trayIcon->setToolTip("Tux-It (Manchot Mignon)");
 
     QMenu* trayMenu = new QMenu();
     QAction* listAction = trayMenu->addAction("Tableau de bord");
