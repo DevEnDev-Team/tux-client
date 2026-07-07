@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Tux-It
+Comment=Cute desktop sticky notes
+Comment[fr]=Vos notes mignonnes sur le bureau
+Exec=tux-it
+Icon=org.devendev.TuxIt
+Terminal=false
+Categories=Utility;Office;
+StartupWMClass=tux-it

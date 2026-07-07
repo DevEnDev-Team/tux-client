@@ -1,0 +1,32 @@
+{
+  "id" : "org.devendev.TuxIt",
+  "runtime" : "org.kde.Platform",
+  "runtime-version" : "6.10",
+  "runtime-commit" : "0af8c74be016b93f6f72bbdc3f179df47dc1274d40b3bb05c824fd1360b1746c",
+  "sdk" : "org.kde.Sdk",
+  "sdk-commit" : "452efb9324e6d96a5e94786fc66ad4b86c1f954023c01e31300d05d84e305745",
+  "command" : "tux-it",
+  "modules" : [
+    {
+      "name" : "tux-it",
+      "buildsystem" : "cmake",
+      "config-opts" : [
+        "-DCMAKE_BUILD_TYPE=Release"
+      ],
+      "sources" : [
+        {
+          "path" : ".",
+          "type" : "dir"
+        }
+      ]
+    }
+  ],
+  "finish-args" : [
+    "--socket=x11",
+    "--socket=wayland",
+    "--device=dri",
+    "--share=ipc",
+    "--share=network"
+  ],
+  "source-date-epoch" : 1783444882
+}

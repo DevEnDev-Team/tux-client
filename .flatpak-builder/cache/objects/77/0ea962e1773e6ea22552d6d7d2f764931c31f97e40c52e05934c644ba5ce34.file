@@ -9,7 +9,6 @@
 #include <QDateTime>
 #include <QGraphicsDropShadowEffect>
 #include <QPainter>
-#include <QPainterPath>
 #include <QFile>
 #include <QStyleOption>
 #include <QJsonDocument>
@@ -171,99 +170,18 @@ void NoteCardWidget::paintEvent(QPaintEvent* event) {
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
-static QIcon createQrIcon() {
-    QPixmap pixmap(32, 32);
-    pixmap.fill(Qt::transparent);
-    QPainter painter(&pixmap);
-    
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor("#ffffff"));
-
-    // Corner 1: Top-Left
-    painter.drawRect(4, 4, 8, 8);
-    // Corner 2: Top-Right
-    painter.drawRect(20, 4, 8, 8);
-    // Corner 3: Bottom-Left
-    painter.drawRect(4, 20, 8, 8);
-
-    // Empty centers using CompositionMode_Clear
-    painter.setCompositionMode(QPainter::CompositionMode_Clear);
-    painter.drawRect(6, 6, 4, 4);
-    painter.drawRect(22, 6, 4, 4);
-    painter.drawRect(6, 22, 4, 4);
-
-    // Core of corners
-    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter.setBrush(QColor("#ffffff"));
-    painter.drawRect(7, 7, 2, 2);
-    painter.drawRect(23, 7, 2, 2);
-    painter.drawRect(7, 23, 2, 2);
-
-    // Random QR pixels
-    painter.drawRect(14, 4, 2, 2);
-    painter.drawRect(16, 8, 2, 4);
-    painter.drawRect(12, 14, 4, 2);
-    painter.drawRect(6, 14, 2, 2);
-    painter.drawRect(14, 18, 4, 2);
-    
-    painter.drawRect(20, 14, 2, 2);
-    painter.drawRect(24, 16, 2, 4);
-    painter.drawRect(14, 24, 2, 4);
-    painter.drawRect(24, 24, 4, 2);
-    painter.drawRect(22, 22, 2, 2);
-
-    return QIcon(pixmap);
-}
-
-static QIcon createThemeIcon(bool darkTheme) {
-    QPixmap pixmap(32, 32);
-    pixmap.fill(Qt::transparent);
-    QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-
-    if (darkTheme) {
-        // Sun icon (amber)
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(QColor("#ffb300"));
-        painter.drawEllipse(11, 11, 10, 10);
-        
-        painter.setPen(QPen(QColor("#ffb300"), 2));
-        for (int i = 0; i < 8; ++i) {
-            painter.save();
-            painter.translate(16, 16);
-            painter.rotate(i * 45);
-            painter.drawLine(0, -9, 0, -13);
-            painter.restore();
-        }
-    } else {
-        // Moon icon (slate dark)
-        painter.setPen(Qt::NoPen);
-        painter.setBrush(QColor("#37474f"));
-        
-        QPainterPath path;
-        path.addEllipse(8, 8, 16, 16);
-        QPainterPath clip;
-        clip.addEllipse(13, 6, 16, 16);
-        QPainterPath crescent = path.subtracted(clip);
-        painter.drawPath(crescent);
-    }
-    return QIcon(pixmap);
-}
-
 
 // --- NotesListWindow ---
 NotesListWindow::NotesListWindow(const std::vector<NoteModel>& notes, QWidget *parent)
     : QWidget(parent, Qt::Window)
     , m_notes(notes)
 {
-    m_darkTheme = loadThemeSetting();
     setWindowTitle("Liste de toutes les notes Tux-It");
     setWindowIcon(StickyWindow::createFoxIcon());
     resize(640, 480);
     setMinimumSize(420, 300);
 
     setupUi();
-    applyTheme(m_darkTheme);
     updateNotesList(m_notes);
 }
 
@@ -273,6 +191,21 @@ void NotesListWindow::setupUi() {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(16, 16, 16, 16);
     mainLayout->setSpacing(12);
+
+    // Style de la fenêtre (Thème moderne, fond épuré sombre-ish)
+    setStyleSheet(
+        "NotesListWindow { background-color: #1e1e24; }"
+        "QLabel#mainTitle { font-weight: bold; font-size: 16px; color: #ffffff; }"
+        "QLineEdit#searchEdit { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 8px; padding: 6px 12px; color: #ffffff; font-size: 12px; }"
+        "QLineEdit#searchEdit:focus { border: 1px solid #90CAF9; }"
+        "QPushButton#newNoteBtn { background-color: #2e7d32; border: none; border-radius: 8px; padding: 6px 16px; color: #ffffff; font-weight: bold; font-size: 12px; }"
+        "QPushButton#newNoteBtn::hover { background-color: #1b5e20; }"
+        "QPushButton#mobileSyncBtn { background-color: #7c4dff; border: none; border-radius: 8px; padding: 6px 16px; color: #ffffff; font-weight: bold; font-size: 12px; }"
+        "QPushButton#mobileSyncBtn::hover { background-color: #651fff; }"
+        "QListWidget { background-color: transparent; border: none; }"
+        "QPushButton#closeBtn { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 6px; padding: 6px 16px; color: #ffffff; font-size: 12px; }"
+        "QPushButton#closeBtn::hover { background-color: #3f3f50; }"
+    );
 
     QLabel* label = new QLabel("Tableau de bord de vos notes Tux-It", this);
     label->setObjectName("mainTitle");
@@ -284,17 +217,10 @@ void NotesListWindow::setupUi() {
     m_searchEdit->setObjectName("searchEdit");
     m_searchEdit->setPlaceholderText("Rechercher dans les notes Tux-It...");
     
-    QPushButton* mobileSyncBtn = new QPushButton(this);
+    QPushButton* mobileSyncBtn = new QPushButton("Synchro Mobile", this);
     mobileSyncBtn->setObjectName("mobileSyncBtn");
-    mobileSyncBtn->setIcon(createQrIcon());
-    mobileSyncBtn->setIconSize(QSize(20, 20));
     mobileSyncBtn->setCursor(Qt::PointingHandCursor);
     mobileSyncBtn->setToolTip("Afficher le QR Code pour la synchronisation avec le téléphone");
-
-    m_themeToggleBtn = new QPushButton(this);
-    m_themeToggleBtn->setObjectName("themeToggleBtn");
-    m_themeToggleBtn->setCursor(Qt::PointingHandCursor);
-    m_themeToggleBtn->setToolTip("Changer de thème (Clair / Sombre)");
 
     QPushButton* newNoteBtn = new QPushButton("Nouveau Tux-It", this);
     newNoteBtn->setObjectName("newNoteBtn");
@@ -302,7 +228,6 @@ void NotesListWindow::setupUi() {
     
     searchLayout->addWidget(m_searchEdit, 1);
     searchLayout->addWidget(mobileSyncBtn);
-    searchLayout->addWidget(m_themeToggleBtn);
     searchLayout->addWidget(newNoteBtn);
     mainLayout->addLayout(searchLayout);
 
@@ -328,7 +253,6 @@ void NotesListWindow::setupUi() {
     // Connections
     connect(m_searchEdit, &QLineEdit::textChanged, this, &NotesListWindow::filterNotes);
     connect(mobileSyncBtn, &QPushButton::clicked, this, &NotesListWindow::mobileSyncRequested);
-    connect(m_themeToggleBtn, &QPushButton::clicked, this, &NotesListWindow::toggleTheme);
     connect(newNoteBtn, &QPushButton::clicked, this, &NotesListWindow::newNoteRequested);
     connect(m_closeButton, &QPushButton::clicked, this, &NotesListWindow::close);
 }
@@ -383,81 +307,5 @@ void NotesListWindow::filterNotes(const QString& text) {
             }
             item->setHidden(!matches);
         }
-    }
-}
-
-void NotesListWindow::applyTheme(bool dark) {
-    m_darkTheme = dark;
-    m_themeToggleBtn->setIcon(createThemeIcon(dark));
-    m_themeToggleBtn->setIconSize(QSize(20, 20));
-
-    if (dark) {
-        setStyleSheet(
-            "NotesListWindow { background-color: #1e1e24; }"
-            "QLabel#mainTitle { font-weight: bold; font-size: 16px; color: #ffffff; }"
-            "QLineEdit#searchEdit { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 8px; padding: 0 12px; height: 32px; color: #ffffff; font-size: 12px; }"
-            "QLineEdit#searchEdit:focus { border: 1px solid #7c4dff; }"
-            "QPushButton#newNoteBtn { background-color: #10b981; border: none; border-radius: 8px; padding: 0 16px; height: 32px; color: #ffffff; font-weight: bold; font-size: 12px; }"
-            "QPushButton#newNoteBtn::hover { background-color: #059669; }"
-            "QPushButton#mobileSyncBtn { background-color: #7c4dff; border: none; border-radius: 8px; padding: 0; width: 32px; height: 32px; color: #ffffff; }"
-            "QPushButton#mobileSyncBtn::hover { background-color: #651fff; }"
-            "QPushButton#themeToggleBtn { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 8px; padding: 0; width: 32px; height: 32px; color: #ffffff; }"
-            "QPushButton#themeToggleBtn::hover { background-color: #3f3f50; }"
-            "QListWidget { background-color: transparent; border: none; }"
-            "QPushButton#closeBtn { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 6px; padding: 6px 16px; color: #ffffff; font-size: 12px; }"
-            "QPushButton#closeBtn::hover { background-color: #3f3f50; }"
-        );
-    } else {
-        setStyleSheet(
-            "NotesListWindow { background-color: #f5f5f7; }"
-            "QLabel#mainTitle { font-weight: bold; font-size: 16px; color: #1d1d1f; }"
-            "QLineEdit#searchEdit { background-color: #ffffff; border: 1px solid #d2d2d7; border-radius: 8px; padding: 0 12px; height: 32px; color: #1d1d1f; font-size: 12px; }"
-            "QLineEdit#searchEdit:focus { border: 1px solid #7c4dff; }"
-            "QPushButton#newNoteBtn { background-color: #10b981; border: none; border-radius: 8px; padding: 0 16px; height: 32px; color: #ffffff; font-weight: bold; font-size: 12px; }"
-            "QPushButton#newNoteBtn::hover { background-color: #059669; }"
-            "QPushButton#mobileSyncBtn { background-color: #7c4dff; border: none; border-radius: 8px; padding: 0; width: 32px; height: 32px; color: #ffffff; }"
-            "QPushButton#mobileSyncBtn::hover { background-color: #651fff; }"
-            "QPushButton#themeToggleBtn { background-color: #ffffff; border: 1px solid #d2d2d7; border-radius: 8px; padding: 0; width: 32px; height: 32px; color: #1d1d1f; }"
-            "QPushButton#themeToggleBtn::hover { background-color: #e8e8ed; }"
-            "QListWidget { background-color: transparent; border: none; }"
-            "QPushButton#closeBtn { background-color: #ffffff; border: 1px solid #d2d2d7; border-radius: 6px; padding: 6px 16px; color: #1d1d1f; font-size: 12px; }"
-            "QPushButton#closeBtn::hover { background-color: #e8e8ed; }"
-        );
-    }
-}
-
-void NotesListWindow::toggleTheme() {
-    bool nextTheme = !m_darkTheme;
-    applyTheme(nextTheme);
-    saveThemeSetting(nextTheme);
-}
-
-bool NotesListWindow::loadThemeSetting() {
-    QString configDir = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    QString configPath = configDir + "/sync_config.json";
-    QFile file(configPath);
-    if (file.open(QIODevice::ReadOnly)) {
-        QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-        QJsonObject obj = doc.object();
-        file.close();
-        return obj.value("theme").toString("dark") == "dark";
-    }
-    return true;
-}
-
-void NotesListWindow::saveThemeSetting(bool dark) {
-    QString configDir = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    QString configPath = configDir + "/sync_config.json";
-    QFile file(configPath);
-    QJsonObject obj;
-    if (file.open(QIODevice::ReadOnly)) {
-        QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-        obj = doc.object();
-        file.close();
-    }
-    obj["theme"] = dark ? "dark" : "light";
-    if (file.open(QIODevice::WriteOnly)) {
-        file.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
-        file.close();
     }
 }

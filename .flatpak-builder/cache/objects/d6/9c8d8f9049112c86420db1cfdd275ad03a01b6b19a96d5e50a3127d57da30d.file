@@ -1,0 +1,4 @@
+[Application]
+name=org.devendev.TuxIt
+runtime=org.kde.Platform/x86_64/6.10
+sdk=org.kde.Sdk/x86_64/6.10

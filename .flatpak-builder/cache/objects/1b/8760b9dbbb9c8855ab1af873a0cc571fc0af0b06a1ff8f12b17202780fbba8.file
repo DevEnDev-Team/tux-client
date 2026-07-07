@@ -1,0 +1,269 @@
+/****************************************************************************
+** Meta object code from reading C++ file 'noteslistwindow.h'
+**
+** Created by: The Qt Meta Object Compiler version 69 (Qt 6.10.3)
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+
+#include "../../noteslistwindow.h"
+#include <QtGui/qtextcursor.h>
+#include <QtCore/qmetatype.h>
+
+#include <QtCore/qtmochelpers.h>
+
+#include <memory>
+
+
+#include <QtCore/qxptype_traits.h>
+#if !defined(Q_MOC_OUTPUT_REVISION)
+#error "The header file 'noteslistwindow.h' doesn't include <QObject>."
+#elif Q_MOC_OUTPUT_REVISION != 69
+#error "This file was generated using the moc from 6.10.3. It"
+#error "cannot be used with the include files from this version of Qt."
+#error "(The moc has changed too much.)"
+#endif
+
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_DEPRECATED
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+struct qt_meta_tag_ZN14NoteCardWidgetE_t {};
+} // unnamed namespace
+
+template <> constexpr inline auto NoteCardWidget::qt_create_metaobjectdata<qt_meta_tag_ZN14NoteCardWidgetE_t>()
+{
+    namespace QMC = QtMocConstants;
+    QtMocHelpers::StringRefStorage qt_stringData {
+        "NoteCardWidget",
+        "openRequested",
+        "",
+        "id",
+        "deleteRequested"
+    };
+
+    QtMocHelpers::UintData qt_methods {
+        // Signal 'openRequested'
+        QtMocHelpers::SignalData<void(const QString &)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 3 },
+        }}),
+        // Signal 'deleteRequested'
+        QtMocHelpers::SignalData<void(const QString &)>(4, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 3 },
+        }}),
+    };
+    QtMocHelpers::UintData qt_properties {
+    };
+    QtMocHelpers::UintData qt_enums {
+    };
+    return QtMocHelpers::metaObjectData<NoteCardWidget, qt_meta_tag_ZN14NoteCardWidgetE_t>(QMC::MetaObjectFlag{}, qt_stringData,
+            qt_methods, qt_properties, qt_enums);
+}
+Q_CONSTINIT const QMetaObject NoteCardWidget::staticMetaObject = { {
+    QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN14NoteCardWidgetE_t>.stringdata,
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN14NoteCardWidgetE_t>.data,
+    qt_static_metacall,
+    nullptr,
+    qt_staticMetaObjectRelocatingContent<qt_meta_tag_ZN14NoteCardWidgetE_t>.metaTypes,
+    nullptr
+} };
+
+void NoteCardWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    auto *_t = static_cast<NoteCardWidget *>(_o);
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: _t->openRequested((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        case 1: _t->deleteRequested((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        default: ;
+        }
+    }
+    if (_c == QMetaObject::IndexOfMethod) {
+        if (QtMocHelpers::indexOfMethod<void (NoteCardWidget::*)(const QString & )>(_a, &NoteCardWidget::openRequested, 0))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (NoteCardWidget::*)(const QString & )>(_a, &NoteCardWidget::deleteRequested, 1))
+            return;
+    }
+}
+
+const QMetaObject *NoteCardWidget::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
+}
+
+void *NoteCardWidget::qt_metacast(const char *_clname)
+{
+    if (!_clname) return nullptr;
+    if (!strcmp(_clname, qt_staticMetaObjectStaticContent<qt_meta_tag_ZN14NoteCardWidgetE_t>.strings))
+        return static_cast<void*>(this);
+    return QWidget::qt_metacast(_clname);
+}
+
+int NoteCardWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QWidget::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        if (_id < 2)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 2;
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        if (_id < 2)
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
+        _id -= 2;
+    }
+    return _id;
+}
+
+// SIGNAL 0
+void NoteCardWidget::openRequested(const QString & _t1)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1);
+}
+
+// SIGNAL 1
+void NoteCardWidget::deleteRequested(const QString & _t1)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1);
+}
+namespace {
+struct qt_meta_tag_ZN15NotesListWindowE_t {};
+} // unnamed namespace
+
+template <> constexpr inline auto NotesListWindow::qt_create_metaobjectdata<qt_meta_tag_ZN15NotesListWindowE_t>()
+{
+    namespace QMC = QtMocConstants;
+    QtMocHelpers::StringRefStorage qt_stringData {
+        "NotesListWindow",
+        "openNoteRequested",
+        "",
+        "id",
+        "deleteNoteRequested",
+        "newNoteRequested",
+        "mobileSyncRequested",
+        "filterNotes",
+        "text"
+    };
+
+    QtMocHelpers::UintData qt_methods {
+        // Signal 'openNoteRequested'
+        QtMocHelpers::SignalData<void(const QString &)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 3 },
+        }}),
+        // Signal 'deleteNoteRequested'
+        QtMocHelpers::SignalData<void(const QString &)>(4, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 3 },
+        }}),
+        // Signal 'newNoteRequested'
+        QtMocHelpers::SignalData<void()>(5, 2, QMC::AccessPublic, QMetaType::Void),
+        // Signal 'mobileSyncRequested'
+        QtMocHelpers::SignalData<void()>(6, 2, QMC::AccessPublic, QMetaType::Void),
+        // Slot 'filterNotes'
+        QtMocHelpers::SlotData<void(const QString &)>(7, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 8 },
+        }}),
+    };
+    QtMocHelpers::UintData qt_properties {
+    };
+    QtMocHelpers::UintData qt_enums {
+    };
+    return QtMocHelpers::metaObjectData<NotesListWindow, qt_meta_tag_ZN15NotesListWindowE_t>(QMC::MetaObjectFlag{}, qt_stringData,
+            qt_methods, qt_properties, qt_enums);
+}
+Q_CONSTINIT const QMetaObject NotesListWindow::staticMetaObject = { {
+    QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN15NotesListWindowE_t>.stringdata,
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN15NotesListWindowE_t>.data,
+    qt_static_metacall,
+    nullptr,
+    qt_staticMetaObjectRelocatingContent<qt_meta_tag_ZN15NotesListWindowE_t>.metaTypes,
+    nullptr
+} };
+
+void NotesListWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+{
+    auto *_t = static_cast<NotesListWindow *>(_o);
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        switch (_id) {
+        case 0: _t->openNoteRequested((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        case 1: _t->deleteNoteRequested((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        case 2: _t->newNoteRequested(); break;
+        case 3: _t->mobileSyncRequested(); break;
+        case 4: _t->filterNotes((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        default: ;
+        }
+    }
+    if (_c == QMetaObject::IndexOfMethod) {
+        if (QtMocHelpers::indexOfMethod<void (NotesListWindow::*)(const QString & )>(_a, &NotesListWindow::openNoteRequested, 0))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (NotesListWindow::*)(const QString & )>(_a, &NotesListWindow::deleteNoteRequested, 1))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (NotesListWindow::*)()>(_a, &NotesListWindow::newNoteRequested, 2))
+            return;
+        if (QtMocHelpers::indexOfMethod<void (NotesListWindow::*)()>(_a, &NotesListWindow::mobileSyncRequested, 3))
+            return;
+    }
+}
+
+const QMetaObject *NotesListWindow::metaObject() const
+{
+    return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
+}
+
+void *NotesListWindow::qt_metacast(const char *_clname)
+{
+    if (!_clname) return nullptr;
+    if (!strcmp(_clname, qt_staticMetaObjectStaticContent<qt_meta_tag_ZN15NotesListWindowE_t>.strings))
+        return static_cast<void*>(this);
+    return QWidget::qt_metacast(_clname);
+}
+
+int NotesListWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+{
+    _id = QWidget::qt_metacall(_c, _id, _a);
+    if (_id < 0)
+        return _id;
+    if (_c == QMetaObject::InvokeMetaMethod) {
+        if (_id < 5)
+            qt_static_metacall(this, _c, _id, _a);
+        _id -= 5;
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+        if (_id < 5)
+            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
+        _id -= 5;
+    }
+    return _id;
+}
+
+// SIGNAL 0
+void NotesListWindow::openNoteRequested(const QString & _t1)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1);
+}
+
+// SIGNAL 1
+void NotesListWindow::deleteNoteRequested(const QString & _t1)
+{
+    QMetaObject::activate<void>(this, &staticMetaObject, 1, nullptr, _t1);
+}
+
+// SIGNAL 2
+void NotesListWindow::newNoteRequested()
+{
+    QMetaObject::activate(this, &staticMetaObject, 2, nullptr);
+}
+
+// SIGNAL 3
+void NotesListWindow::mobileSyncRequested()
+{
+    QMetaObject::activate(this, &staticMetaObject, 3, nullptr);
+}
+QT_WARNING_POP

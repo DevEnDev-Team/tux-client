@@ -50,20 +50,14 @@ signals:
 
 private slots:
     void filterNotes(const QString& text);
-    void toggleTheme();
 
 private:
     void setupUi();
-    void applyTheme(bool dark);
-    bool loadThemeSetting();
-    void saveThemeSetting(bool dark);
 
     QListWidget* m_listWidget;
     QLineEdit* m_searchEdit;
     QPushButton* m_closeButton;
-    QPushButton* m_themeToggleBtn;
     std::vector<NoteModel> m_notes;
-    bool m_darkTheme;
 };
 
 #endif // NOTESLISTWINDOW_H

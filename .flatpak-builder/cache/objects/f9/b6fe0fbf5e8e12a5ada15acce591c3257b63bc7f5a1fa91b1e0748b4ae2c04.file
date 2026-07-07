@@ -1,0 +1,24 @@
+[Application]
+name=org.devendev.TuxIt
+runtime=org.kde.Platform/x86_64/6.10
+sdk=org.kde.Sdk/x86_64/6.10
+command=tux-it
+
+[Context]
+shared=network;ipc;
+sockets=x11;wayland;
+devices=dri;
+filesystems=xdg-config/kdeglobals:ro;
+
+[Session Bus Policy]
+com.canonical.AppMenu.Registrar=talk
+org.kde.kconfig.notify=talk
+org.kde.KGlobalSettings=talk
+
+[Extension org.devendev.TuxIt.Debug]
+directory=lib/debug
+autodelete=true
+no-autodownload=true
+
+[Build]
+built-extensions=org.devendev.TuxIt.Debug;
