@@ -114,8 +114,7 @@ void SyncQrCodeDialog::loadQrCode(const QString& serverUrl, const QString& apiKe
             QPixmap pixmap;
             if (pixmap.loadFromData(data)) {
                 m_qrLabel->setPixmap(pixmap);
-                m_statusLabel->setText("QR Code chargé avec succès !");
-                m_statusLabel->setStyleSheet("font-size: 11px; color: #4caf50;");
+                m_statusLabel->setText("");
             } else {
                 m_statusLabel->setText("Erreur d'interprétation de l'image");
                 m_statusLabel->setStyleSheet("font-size: 11px; color: #f44336;");

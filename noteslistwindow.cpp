@@ -170,6 +170,50 @@ void NoteCardWidget::paintEvent(QPaintEvent* event) {
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
+static QIcon createQrIcon() {
+    QPixmap pixmap(32, 32);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor("#ffffff"));
+
+    // Corner 1: Top-Left
+    painter.drawRect(4, 4, 8, 8);
+    // Corner 2: Top-Right
+    painter.drawRect(20, 4, 8, 8);
+    // Corner 3: Bottom-Left
+    painter.drawRect(4, 20, 8, 8);
+
+    // Empty centers using CompositionMode_Clear
+    painter.setCompositionMode(QPainter::CompositionMode_Clear);
+    painter.drawRect(6, 6, 4, 4);
+    painter.drawRect(22, 6, 4, 4);
+    painter.drawRect(6, 22, 4, 4);
+
+    // Core of corners
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    painter.setBrush(QColor("#ffffff"));
+    painter.drawRect(7, 7, 2, 2);
+    painter.drawRect(23, 7, 2, 2);
+    painter.drawRect(7, 23, 2, 2);
+
+    // Random QR pixels
+    painter.drawRect(14, 4, 2, 2);
+    painter.drawRect(16, 8, 2, 4);
+    painter.drawRect(12, 14, 4, 2);
+    painter.drawRect(6, 14, 2, 2);
+    painter.drawRect(14, 18, 4, 2);
+    
+    painter.drawRect(20, 14, 2, 2);
+    painter.drawRect(24, 16, 2, 4);
+    painter.drawRect(14, 24, 2, 4);
+    painter.drawRect(24, 24, 4, 2);
+    painter.drawRect(22, 22, 2, 2);
+
+    return QIcon(pixmap);
+}
+
 
 // --- NotesListWindow ---
 NotesListWindow::NotesListWindow(const std::vector<NoteModel>& notes, QWidget *parent)
@@ -200,7 +244,7 @@ void NotesListWindow::setupUi() {
         "QLineEdit#searchEdit:focus { border: 1px solid #90CAF9; }"
         "QPushButton#newNoteBtn { background-color: #2e7d32; border: none; border-radius: 8px; padding: 6px 16px; color: #ffffff; font-weight: bold; font-size: 12px; }"
         "QPushButton#newNoteBtn::hover { background-color: #1b5e20; }"
-        "QPushButton#mobileSyncBtn { background-color: #7c4dff; border: none; border-radius: 8px; padding: 6px 16px; color: #ffffff; font-weight: bold; font-size: 12px; }"
+        "QPushButton#mobileSyncBtn { background-color: #7c4dff; border: none; border-radius: 8px; padding: 6px; color: #ffffff; min-width: 32px; max-width: 32px; min-height: 32px; max-height: 32px; }"
         "QPushButton#mobileSyncBtn::hover { background-color: #651fff; }"
         "QListWidget { background-color: transparent; border: none; }"
         "QPushButton#closeBtn { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 6px; padding: 6px 16px; color: #ffffff; font-size: 12px; }"
@@ -217,8 +261,10 @@ void NotesListWindow::setupUi() {
     m_searchEdit->setObjectName("searchEdit");
     m_searchEdit->setPlaceholderText("Rechercher dans les notes Tux-It...");
     
-    QPushButton* mobileSyncBtn = new QPushButton("Synchro Mobile", this);
+    QPushButton* mobileSyncBtn = new QPushButton(this);
     mobileSyncBtn->setObjectName("mobileSyncBtn");
+    mobileSyncBtn->setIcon(createQrIcon());
+    mobileSyncBtn->setIconSize(QSize(20, 20));
     mobileSyncBtn->setCursor(Qt::PointingHandCursor);
     mobileSyncBtn->setToolTip("Afficher le QR Code pour la synchronisation avec le téléphone");
 
