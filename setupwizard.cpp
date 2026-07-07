@@ -44,7 +44,7 @@ void SetupWizard::setupUi() {
     mainLayout->setContentsMargins(24, 24, 24, 24);
     mainLayout->setSpacing(16);
 
-    // En-tête avec Icône de Renard Mignonne
+    // En-tête avec Icône de l'application
     QHBoxLayout* headerLayout = new QHBoxLayout();
     QLabel* logoLabel = new QLabel(this);
     logoLabel->setPixmap(StickyWindow::createFoxIcon().pixmap(64, 64));

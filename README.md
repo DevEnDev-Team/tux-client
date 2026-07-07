@@ -8,7 +8,7 @@ Il s'intègre parfaitement avec notre serveur de synchronisation Go pour sauvega
 
 ## ✨ Fonctionnalités du Client
 
-* **Design épuré** : Look moderne sans bordures système, avec des coins arrondis et la mascotte Renard.
+* **Design épuré** : Look moderne sans bordures système, avec des coins arrondis.
 * **Always on Top** : Reste au premier plan de façon robuste (compatible avec Wayland et X11).
 * **Rich Text** : Formatage en gras (`Ctrl + B`), lock de l'édition graphique (cadenas), choix de couleur et opacité.
 * **Assistant Graphique (SetupWizard)** : Assistant au premier démarrage pour configurer le raccourci d'application, le lancement automatique (Autostart) et la synchronisation en ligne.
