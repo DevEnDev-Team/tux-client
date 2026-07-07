@@ -15,12 +15,7 @@ modules:
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
     sources:
-      # Pour le développement et le test local
-      - type: dir
-        path: .
-      # NOTE pour la publication sur Flathub :
-      # Remplacer la source ci-dessus par une référence git vers votre dépôt public, par exemple :
-      # - type: git
-      #   url: https://github.com/DevEnDev-Team/tux-client.git
-      #   tag: v1.0.0
-      #   commit: <commit-hash>
+      - type: git
+        url: https://github.com/DevEnDev-Team/tux-client.git
+        tag: v1.0.0
+
