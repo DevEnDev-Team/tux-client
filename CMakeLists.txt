@@ -33,3 +33,19 @@ add_executable(tux-it
 )
 
 target_link_libraries(tux-it PRIVATE Qt6::Widgets Qt6::Network)
+
+include(GNUInstallDirs)
+
+install(TARGETS tux-it
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+# Install desktop file
+install(FILES org.devendev.TuxIt.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+
+# Install appdata/metainfo file
+install(FILES org.devendev.TuxIt.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
+
+# Install icon
+install(FILES ressources/logo.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps RENAME org.devendev.TuxIt.png)
+
