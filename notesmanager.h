@@ -26,6 +26,7 @@ public:
 private slots:
     void onNoteChanged(const QString& id);
     void onNewNoteRequested();
+    void onMobileSyncRequested();
     void onDuplicateNoteRequested(const NoteModel& model);
     void onDeleteNoteRequested(const QString& id);
     void onShowNotesListRequested();

@@ -2,6 +2,7 @@
 #include "noteslistwindow.h"
 #include "syncmanager.h"
 #include "setupwizard.h"
+#include "syncqrcodedialog.h"
 #include <QUuid>
 #include <QDateTime>
 #include <QScreen>
@@ -252,6 +253,15 @@ void NotesManager::onNewNoteRequested() {
     saveAll();
 }
 
+void NotesManager::onMobileSyncRequested() {
+    if (!m_sync->isEnabled()) {
+        QMessageBox::warning(m_listWindow, "Synchronisation désactivée", "La synchronisation n'est pas activée ou configurée sur ce client desktop.");
+        return;
+    }
+    SyncQrCodeDialog dialog(m_sync->serverUrl(), m_sync->apiKey(), m_listWindow);
+    dialog.exec();
+}
+
 void NotesManager::onDuplicateNoteRequested(const NoteModel& model) {
     NoteModel dupNote = model;
     dupNote.id = generateUniqueId();
@@ -310,6 +320,7 @@ void NotesManager::onShowNotesListRequested() {
         connect(m_listWindow, &NotesListWindow::openNoteRequested, this, &NotesManager::onOpenNoteFromListRequested);
         connect(m_listWindow, &NotesListWindow::deleteNoteRequested, this, &NotesManager::onDeleteNoteFromListRequested);
         connect(m_listWindow, &NotesListWindow::newNoteRequested, this, &NotesManager::onNewNoteRequested);
+        connect(m_listWindow, &NotesListWindow::mobileSyncRequested, this, &NotesManager::onMobileSyncRequested);
         connect(m_listWindow, &QObject::destroyed, this, [this]() {
             m_listWindow = nullptr;
             if (m_windows.empty()) {

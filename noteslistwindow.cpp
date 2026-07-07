@@ -200,6 +200,8 @@ void NotesListWindow::setupUi() {
         "QLineEdit#searchEdit:focus { border: 1px solid #90CAF9; }"
         "QPushButton#newNoteBtn { background-color: #2e7d32; border: none; border-radius: 8px; padding: 6px 16px; color: #ffffff; font-weight: bold; font-size: 12px; }"
         "QPushButton#newNoteBtn::hover { background-color: #1b5e20; }"
+        "QPushButton#mobileSyncBtn { background-color: #7c4dff; border: none; border-radius: 8px; padding: 6px 16px; color: #ffffff; font-weight: bold; font-size: 12px; }"
+        "QPushButton#mobileSyncBtn::hover { background-color: #651fff; }"
         "QListWidget { background-color: transparent; border: none; }"
         "QPushButton#closeBtn { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 6px; padding: 6px 16px; color: #ffffff; font-size: 12px; }"
         "QPushButton#closeBtn::hover { background-color: #3f3f50; }"
@@ -209,17 +211,23 @@ void NotesListWindow::setupUi() {
     label->setObjectName("mainTitle");
     mainLayout->addWidget(label);
 
-    // Barre de recherche et bouton Nouveau note
+    // Barre de recherche et boutons Nouveau / Synchro
     QHBoxLayout* searchLayout = new QHBoxLayout();
     m_searchEdit = new QLineEdit(this);
     m_searchEdit->setObjectName("searchEdit");
     m_searchEdit->setPlaceholderText("Rechercher dans les notes Tux-It...");
     
+    QPushButton* mobileSyncBtn = new QPushButton("Synchro Mobile", this);
+    mobileSyncBtn->setObjectName("mobileSyncBtn");
+    mobileSyncBtn->setCursor(Qt::PointingHandCursor);
+    mobileSyncBtn->setToolTip("Afficher le QR Code pour la synchronisation avec le téléphone");
+
     QPushButton* newNoteBtn = new QPushButton("Nouveau Tux-It", this);
     newNoteBtn->setObjectName("newNoteBtn");
     newNoteBtn->setCursor(Qt::PointingHandCursor);
     
     searchLayout->addWidget(m_searchEdit, 1);
+    searchLayout->addWidget(mobileSyncBtn);
     searchLayout->addWidget(newNoteBtn);
     mainLayout->addLayout(searchLayout);
 
@@ -244,6 +252,7 @@ void NotesListWindow::setupUi() {
 
     // Connections
     connect(m_searchEdit, &QLineEdit::textChanged, this, &NotesListWindow::filterNotes);
+    connect(mobileSyncBtn, &QPushButton::clicked, this, &NotesListWindow::mobileSyncRequested);
     connect(newNoteBtn, &QPushButton::clicked, this, &NotesListWindow::newNoteRequested);
     connect(m_closeButton, &QPushButton::clicked, this, &NotesListWindow::close);
 }

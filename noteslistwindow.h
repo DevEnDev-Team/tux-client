@@ -46,6 +46,7 @@ signals:
     void openNoteRequested(const QString& id);
     void deleteNoteRequested(const QString& id);
     void newNoteRequested();
+    void mobileSyncRequested();
 
 private slots:
     void filterNotes(const QString& text);
