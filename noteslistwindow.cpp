@@ -176,7 +176,7 @@ NotesListWindow::NotesListWindow(const std::vector<NoteModel>& notes, QWidget *p
     : QWidget(parent, Qt::Window)
     , m_notes(notes)
 {
-    setWindowTitle("Liste de tous les Post-its");
+    setWindowTitle("Liste de toutes les notes Tux-It");
     setWindowIcon(StickyWindow::createFoxIcon());
     resize(640, 480);
     setMinimumSize(420, 300);
@@ -203,14 +203,14 @@ void NotesListWindow::setupUi() {
         "QPushButton#closeBtn::hover { background-color: #3f3f50; }"
     );
 
-    QLabel* label = new QLabel("Tableau de bord de vos Post-its", this);
+    QLabel* label = new QLabel("Tableau de bord de vos notes Tux-It", this);
     label->setObjectName("mainTitle");
     mainLayout->addWidget(label);
 
     // Barre de recherche
     m_searchEdit = new QLineEdit(this);
     m_searchEdit->setObjectName("searchEdit");
-    m_searchEdit->setPlaceholderText("Rechercher dans les Post-its...");
+    m_searchEdit->setPlaceholderText("Rechercher dans les notes Tux-It...");
     mainLayout->addWidget(m_searchEdit);
 
     // Grille de Post-its (QListWidget en mode liste verticale)
@@ -250,7 +250,7 @@ void NotesListWindow::updateNotesList(const std::vector<NoteModel>& notes) {
         // Relayer les requêtes de la carte vers la fenêtre principale
         connect(card, &NoteCardWidget::openRequested, this, &NotesListWindow::openNoteRequested);
         connect(card, &NoteCardWidget::deleteRequested, this, [this](const QString& id) {
-            QMessageBox msgBox(QMessageBox::Question, "Supprimer", "Voulez-vous vraiment supprimer ce post-it ?", QMessageBox::Yes | QMessageBox::No, this);
+            QMessageBox msgBox(QMessageBox::Question, "Supprimer", "Voulez-vous vraiment supprimer cette note Tux-It ?", QMessageBox::Yes | QMessageBox::No, this);
             msgBox.setWindowModality(Qt::WindowModal);
             if (msgBox.exec() == QMessageBox::Yes) {
                 emit deleteNoteRequested(id);

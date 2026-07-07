@@ -15,7 +15,7 @@
 SetupWizard::SetupWizard(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle("Configuration Initiale - Post-It");
+    setWindowTitle("Configuration Initiale - Tux-It");
     setWindowIcon(StickyWindow::createFoxIcon());
     resize(480, 420);
     
@@ -51,7 +51,7 @@ void SetupWizard::setupUi() {
     logoLabel->setFixedSize(64, 64);
     
     QVBoxLayout* headerTextLayout = new QVBoxLayout();
-    QLabel* titleLabel = new QLabel("Bienvenue sur Post-It !", this);
+    QLabel* titleLabel = new QLabel("Bienvenue sur Tux-It !", this);
     titleLabel->setObjectName("title");
     QLabel* subtitleLabel = new QLabel("Assistant de configuration rapide", this);
     subtitleLabel->setStyleSheet("color: #aaaaaa; font-size: 11px;");

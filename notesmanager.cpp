@@ -85,7 +85,7 @@ void NotesManager::start() {
                 if (merged.empty() && !hadNotes) {
                     NoteModel defaultNote;
                     defaultNote.id = generateUniqueId();
-                    defaultNote.content = "Bienvenue dans vos Post-its !\n\nDouble-cliquez pour éditer.\nFaites un clic droit pour changer la couleur ou l'opacité.";
+                    defaultNote.content = "Bienvenue dans vos notes Tux-It !\n\nDouble-cliquez pour éditer.\nFaites un clic droit pour changer la couleur ou l'opacité.";
                     defaultNote.color = "#FFF59D"; // Jaune par défaut
                     defaultNote.position = QPoint(150, 150);
                     defaultNote.size = QSize(250, 250);
@@ -193,7 +193,7 @@ void NotesManager::createNoteWindow(const NoteModel& note) {
 void NotesManager::createDefaultNote() {
     NoteModel defaultNote;
     defaultNote.id = generateUniqueId();
-    defaultNote.content = "Bienvenue dans vos Post-its !\n\nDouble-cliquez pour éditer.\nFaites un clic droit pour changer la couleur ou l'opacité.";
+    defaultNote.content = "Bienvenue dans vos notes Tux-It !\n\nDouble-cliquez pour éditer.\nFaites un clic droit pour changer la couleur ou l'opacité.";
     defaultNote.color = "#FFF59D"; // Jaune par défaut
     defaultNote.position = QPoint(150, 150);
     defaultNote.size = QSize(250, 250);
@@ -413,11 +413,11 @@ void NotesManager::setupTrayIcon() {
 
     m_trayIcon = new QSystemTrayIcon(this);
     m_trayIcon->setIcon(StickyWindow::createFoxIcon());
-    m_trayIcon->setToolTip("Post-It (Renard Mignon)");
+    m_trayIcon->setToolTip("Tux-It (Renard Mignon)");
 
     QMenu* trayMenu = new QMenu();
     QAction* listAction = trayMenu->addAction("Tableau de bord");
-    QAction* newAction = trayMenu->addAction("Nouveau Post-It");
+    QAction* newAction = trayMenu->addAction("Nouveau Tux-It");
     trayMenu->addSeparator();
     QAction* quitAction = trayMenu->addAction("Quitter");
 

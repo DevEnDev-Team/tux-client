@@ -75,7 +75,7 @@ void StickyWindow::setupUi() {
     m_menuButton->setFixedSize(26, 26);
     m_menuButton->setFlat(true);
 
-    m_titleLabel = new QLabel(m_model.tags.isEmpty() ? "Post-it" : m_model.tags.join(", "), m_headerWidget);
+    m_titleLabel = new QLabel(m_model.tags.isEmpty() ? "Tux-It" : m_model.tags.join(", "), m_headerWidget);
     m_titleLabel->setStyleSheet("font-weight: bold; font-size: 13px;");
 
     m_plusButton = new QPushButton(m_headerWidget);
@@ -263,7 +263,7 @@ void StickyWindow::updateTitle() {
     doc.setHtml(m_textEdit ? m_textEdit->toHtml() : m_model.content);
     QString plainText = doc.toPlainText().trimmed();
     
-    QString title = "Post-it";
+    QString title = "Tux-It";
     if (!plainText.isEmpty()) {
         int index = -1;
         for (int i = 0; i < plainText.length(); ++i) {
