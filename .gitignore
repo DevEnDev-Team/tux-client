@@ -24,3 +24,8 @@ post-it-client-linux.zip
 .DS_Store
 *.tmp
 *.log
+
+# Flatpak
+.flatpak-builder/
+build-flatpak/
+
