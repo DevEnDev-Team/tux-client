@@ -12,24 +12,24 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt6 REQUIRED COMPONENTS Widgets Network)
 
 add_executable(tux-it
-    main.cpp
-    notemodel.h
-    istorageprovider.h
-    localstorageprovider.h
-    localstorageprovider.cpp
-    stickywindow.h
-    stickywindow.cpp
-    notesmanager.h
-    notesmanager.cpp
-    noteslistwindow.h
-    noteslistwindow.cpp
-    syncmanager.h
-    syncmanager.cpp
-    setupwizard.h
-    setupwizard.cpp
-    syncqrcodedialog.h
-    syncqrcodedialog.cpp
-    resources.qrc
+    src/main.cpp
+    src/notemodel.h
+    src/istorageprovider.h
+    src/localstorageprovider.h
+    src/localstorageprovider.cpp
+    src/stickywindow.h
+    src/stickywindow.cpp
+    src/notesmanager.h
+    src/notesmanager.cpp
+    src/noteslistwindow.h
+    src/noteslistwindow.cpp
+    src/syncmanager.h
+    src/syncmanager.cpp
+    src/setupwizard.h
+    src/setupwizard.cpp
+    src/syncqrcodedialog.h
+    src/syncqrcodedialog.cpp
+    src/resources.qrc
 )
 
 target_link_libraries(tux-it PRIVATE Qt6::Widgets Qt6::Network)
@@ -47,5 +47,5 @@ install(FILES org.devendev.TuxIt.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/ap
 install(FILES org.devendev.TuxIt.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
 
 # Install icon
-install(FILES ressources/logo.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps RENAME org.devendev.TuxIt.png)
+install(FILES src/ressources/logo.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps RENAME org.devendev.TuxIt.png)
 
