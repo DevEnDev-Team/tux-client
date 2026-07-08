@@ -1,5 +1,0 @@
-[Runtime]
-name=org.devendev.TuxIt.Debug
-
-[ExtensionOf]
-ref=app/org.devendev.TuxIt/x86_64/master
