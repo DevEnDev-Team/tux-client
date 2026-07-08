@@ -22,7 +22,7 @@ public:
     void updateAppearance();
     void setSynced(bool synced);
     void updateFromModel(const NoteModel& model);
-    static QIcon createFoxIcon();
+    static QIcon createPenguinIcon();
     static QIcon createLockIcon(bool locked);
     static QIcon createPlusIcon();
     static QIcon createColorBadgeIcon(const QString& hexColor);

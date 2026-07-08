@@ -69,7 +69,7 @@ void StickyWindow::setupUi() {
     headerLayout->setAlignment(Qt::AlignVCenter);
 
     m_menuButton = new QPushButton(m_headerWidget);
-    m_menuButton->setIcon(createFoxIcon());
+    m_menuButton->setIcon(createPenguinIcon());
     m_menuButton->setIconSize(QSize(20, 20));
     m_menuButton->setCursor(Qt::PointingHandCursor);
     m_menuButton->setFixedSize(26, 26);
@@ -683,7 +683,7 @@ void StickyWindow::paintEvent(QPaintEvent *event) {
     QWidget::paintEvent(event);
 }
 
-QIcon StickyWindow::createFoxIcon() {
+QIcon StickyWindow::createPenguinIcon() {
     return QIcon(":/logo.png");
 }
 

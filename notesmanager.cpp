@@ -423,7 +423,7 @@ void NotesManager::setupTrayIcon() {
     if (m_trayIcon) return;
 
     m_trayIcon = new QSystemTrayIcon(this);
-    m_trayIcon->setIcon(StickyWindow::createFoxIcon());
+    m_trayIcon->setIcon(StickyWindow::createPenguinIcon());
     m_trayIcon->setToolTip("Tux-It");
 
     QMenu* trayMenu = new QMenu();

@@ -16,7 +16,7 @@ SetupWizard::SetupWizard(QWidget* parent)
     : QDialog(parent)
 {
     setWindowTitle("Configuration Initiale - Tux-It");
-    setWindowIcon(StickyWindow::createFoxIcon());
+    setWindowIcon(StickyWindow::createPenguinIcon());
     resize(480, 420);
     
     setupUi();
@@ -47,7 +47,7 @@ void SetupWizard::setupUi() {
     // En-tête avec Icône de l'application
     QHBoxLayout* headerLayout = new QHBoxLayout();
     QLabel* logoLabel = new QLabel(this);
-    logoLabel->setPixmap(StickyWindow::createFoxIcon().pixmap(64, 64));
+    logoLabel->setPixmap(StickyWindow::createPenguinIcon().pixmap(64, 64));
     logoLabel->setFixedSize(64, 64);
     
     QVBoxLayout* headerTextLayout = new QVBoxLayout();
@@ -176,7 +176,7 @@ void SetupWizard::createDesktopLauncher() {
     QDir().mkpath(iconDir);
     QString iconPath = iconDir + "/tux-it.png";
     
-    QIcon icon = StickyWindow::createFoxIcon();
+    QIcon icon = StickyWindow::createPenguinIcon();
     QPixmap pixmap = icon.pixmap(256, 256);
     pixmap.save(iconPath);
 

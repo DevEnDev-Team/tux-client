@@ -258,7 +258,7 @@ NotesListWindow::NotesListWindow(const std::vector<NoteModel>& notes, QWidget *p
 {
     m_darkTheme = loadThemeSetting();
     setWindowTitle("Liste de toutes les notes Tux-It");
-    setWindowIcon(StickyWindow::createFoxIcon());
+    setWindowIcon(StickyWindow::createPenguinIcon());
     resize(640, 480);
     setMinimumSize(420, 300);
 

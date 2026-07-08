@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     // Option pour exporter l'icône de l'application (utilisé par le script d'installation)
     if (argc > 2 && QString(argv[1]) == "--export-icon") {
         QApplication app(argc, argv);
-        QIcon icon = StickyWindow::createFoxIcon();
+        QIcon icon = StickyWindow::createPenguinIcon();
         QPixmap pixmap = icon.pixmap(256, 256);
         return pixmap.save(argv[2]) ? 0 : 1;
     }
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     app.setApplicationName("Tux-It");
     app.setApplicationVersion("1.0.0");
     app.setOrganizationName("DevEnDev");
-    app.setWindowIcon(StickyWindow::createFoxIcon());
+    app.setWindowIcon(StickyWindow::createPenguinIcon());
 
     auto storage = std::make_unique<LocalStorageProvider>();
     NotesManager manager(std::move(storage));
