@@ -321,6 +321,7 @@ void StickyWindow::saveTriggered() {
     m_model.content = m_textEdit->toHtml();
     m_model.position = pos();
     m_model.size = size();
+    m_model.lastModified = QDateTime::currentDateTime();
     updateTitle();
     emit noteChanged(m_model.id);
 }

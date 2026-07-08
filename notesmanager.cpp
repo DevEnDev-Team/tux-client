@@ -287,6 +287,8 @@ void NotesManager::onDeleteNoteRequested(const QString& id) {
     for (auto it = m_notes.begin(); it != m_notes.end(); ++it) {
         if (it->id == id) {
             it->archived = true;
+            it->lastModified = QDateTime::currentDateTime();
+            it->synced = false;
             break;
         }
     }
