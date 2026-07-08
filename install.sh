@@ -40,7 +40,7 @@ echo -e "${BLUE}5. Création du raccourci dans le menu des applications...${NC}"
 cat <<EOF > "$HOME/.local/share/applications/tux-it.desktop"
 [Desktop Entry]
 Name=Tux-It
-Comment=Vos notes mignonnes sur le bureau
+Comment=Vos notes synchronisées sur le bureau
 Exec=$HOME/.local/bin/tux-it
 Icon=tux-it
 Terminal=false
