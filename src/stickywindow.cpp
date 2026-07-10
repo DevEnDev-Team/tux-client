@@ -17,6 +17,9 @@
 #include <QJsonObject>
 #include <QStandardPaths>
 #include <QTextDocument>
+#include <QTextBlock>
+#include <QTextList>
+#include <QRegularExpression>
 
 StickyWindow::StickyWindow(NoteModel model, QWidget *parent)
     : QWidget(parent, Qt::Window | Qt::FramelessWindowHint | Qt::CustomizeWindowHint)
@@ -50,7 +53,7 @@ NoteModel StickyWindow::getModel() const {
     NoteModel m = m_model;
     m.position = pos();
     m.size = size();
-    m.content = m_textEdit->toPlainText();
+    m.content = m_textEdit->toHtml();
     return m;
 }
 
@@ -84,11 +87,12 @@ void StickyWindow::setupUi() {
     m_plusButton->setFixedSize(26, 26);
     m_plusButton->setFlat(true);
 
-    m_boldButton = new QPushButton(m_headerWidget);
-    m_boldButton->setIconSize(QSize(20, 20));
-    m_boldButton->setCursor(Qt::PointingHandCursor);
-    m_boldButton->setFixedSize(26, 26);
-    m_boldButton->setFlat(true);
+    m_formatButton = new QPushButton(m_headerWidget);
+    m_formatButton->setIconSize(QSize(20, 20));
+    m_formatButton->setCursor(Qt::PointingHandCursor);
+    m_formatButton->setFixedSize(26, 26);
+    m_formatButton->setFlat(true);
+    m_formatButton->setToolTip("Formatage du texte");
 
     m_colorBadgeButton = new QPushButton(m_headerWidget);
     m_colorBadgeButton->setIconSize(QSize(20, 20));
@@ -119,7 +123,7 @@ void StickyWindow::setupUi() {
     headerLayout->addWidget(m_titleLabel, 0, Qt::AlignVCenter);
     headerLayout->addStretch();
     headerLayout->addWidget(m_plusButton, 0, Qt::AlignVCenter);
-    headerLayout->addWidget(m_boldButton, 0, Qt::AlignVCenter);
+    headerLayout->addWidget(m_formatButton, 0, Qt::AlignVCenter);
     headerLayout->addWidget(m_colorBadgeButton, 0, Qt::AlignVCenter);
     headerLayout->addWidget(m_syncButton, 0, Qt::AlignVCenter);
     headerLayout->addWidget(m_lockButton, 0, Qt::AlignVCenter);
@@ -129,11 +133,14 @@ void StickyWindow::setupUi() {
     m_textEdit = new QTextEdit(this);
     m_textEdit->setFrameStyle(QFrame::NoFrame);
     m_textEdit->setAcceptRichText(true);
+    
+    // Charger le HTML natif
     m_textEdit->setHtml(m_model.content);
     m_textEdit->setPlaceholderText("Écrivez quelque chose...");
     
     // Set padding via stylesheet or margins
     m_textEdit->document()->setDocumentMargin(12);
+    m_textEdit->document()->setIndentWidth(16);
 
     mainLayout->addWidget(m_headerWidget);
     mainLayout->addWidget(m_textEdit);
@@ -151,11 +158,55 @@ void StickyWindow::setupUi() {
     connect(m_closeButton, &QPushButton::clicked, this, &StickyWindow::deleteNote);
     connect(m_lockButton, &QPushButton::clicked, this, &StickyWindow::toggleLocked);
     connect(m_plusButton, &QPushButton::clicked, this, &StickyWindow::newNoteRequested);
-    connect(m_boldButton, &QPushButton::clicked, this, [this]() {
-        QTextCharFormat format;
-        format.setFontWeight(m_textEdit->fontWeight() == QFont::Bold ? QFont::Normal : QFont::Bold);
-        m_textEdit->mergeCurrentCharFormat(format);
-        saveTriggered();
+    connect(m_formatButton, &QPushButton::clicked, this, [this]() {
+        QMenu menu(this);
+        menu.setAttribute(Qt::WA_TranslucentBackground);
+        menu.setStyleSheet(
+            "QMenu { background-color: palette(window); color: palette(text); border: 1px solid palette(mid); border-radius: 8px; padding: 4px; }"
+            "QMenu::item { padding: 6px 24px; border-radius: 4px; }"
+            "QMenu::item:selected { background-color: palette(highlight); color: palette(highlightedText); }"
+            "QMenu::separator { height: 1px; background: palette(mid); margin: 4px 0; }"
+        );
+
+        QAction* actBold = menu.addAction("Gras");
+        actBold->setCheckable(true);
+        actBold->setChecked(m_textEdit->fontWeight() == QFont::Bold);
+
+        QAction* actItalic = menu.addAction("Italique");
+        actItalic->setCheckable(true);
+        actItalic->setChecked(m_textEdit->fontItalic());
+
+        QAction* actUnderline = menu.addAction("Souligné");
+        actUnderline->setCheckable(true);
+        actUnderline->setChecked(m_textEdit->fontUnderline());
+
+        QAction* actStrike = menu.addAction("Barré");
+        actStrike->setCheckable(true);
+        QTextCharFormat charFormat = m_textEdit->currentCharFormat();
+        actStrike->setChecked(charFormat.fontStrikeOut());
+
+        QAction* selected = menu.exec(m_formatButton->mapToGlobal(QPoint(0, m_formatButton->height())));
+        if (selected == actBold) {
+            QTextCharFormat format;
+            format.setFontWeight(actBold->isChecked() ? QFont::Bold : QFont::Normal);
+            m_textEdit->mergeCurrentCharFormat(format);
+            saveTriggered();
+        } else if (selected == actItalic) {
+            QTextCharFormat format;
+            format.setFontItalic(actItalic->isChecked());
+            m_textEdit->mergeCurrentCharFormat(format);
+            saveTriggered();
+        } else if (selected == actUnderline) {
+            QTextCharFormat format;
+            format.setFontUnderline(actUnderline->isChecked());
+            m_textEdit->mergeCurrentCharFormat(format);
+            saveTriggered();
+        } else if (selected == actStrike) {
+            QTextCharFormat format;
+            format.setFontStrikeOut(actStrike->isChecked());
+            m_textEdit->mergeCurrentCharFormat(format);
+            saveTriggered();
+        }
     });
     connect(m_colorBadgeButton, &QPushButton::clicked, this, [this]() {
         QMenu colorMenu(this);
@@ -232,7 +283,7 @@ void StickyWindow::updateAppearance() {
 
     m_titleLabel->setStyleSheet(QString("font-weight: bold; font-size: 13px; color: %1;").arg(fgColor.name()));
     m_plusButton->setIcon(createPlusIcon());
-    m_boldButton->setIcon(createBoldIcon());
+    m_formatButton->setIcon(createFormatIcon());
     m_colorBadgeButton->setIcon(createColorBadgeIcon(m_model.color));
     m_lockButton->setIcon(createLockIcon(m_model.locked));
 
@@ -254,7 +305,6 @@ void StickyWindow::updateAppearance() {
         m_syncButton->setIcon(createSyncIcon(m_model.synced, true));
         m_syncButton->setToolTip(m_model.synced ? "Note synchronisée en ligne" : "Modifications locales non synchronisées");
     }
-    
     m_textEdit->setReadOnly(m_model.locked);
 }
 
@@ -342,6 +392,8 @@ void StickyWindow::toggleLocked() {
     saveTriggered();
 }
 
+
+
 void StickyWindow::setOpacityValue(double opacity) {
     m_model.opacity = opacity;
     updateAppearance();
@@ -375,6 +427,16 @@ void StickyWindow::showContextMenu(const QPoint& pos) {
     QAction* actionDuplicate = menu.addAction("Dupliquer");
     QAction* actionList = menu.addAction("Liste des notes");
     menu.addSeparator();
+
+    QMenu* formatMenu = menu.addMenu("Format de liste");
+    QAction* actionBulletList = formatMenu->addAction("Liste à puces");
+    QAction* actionNumberedList = formatMenu->addAction("Liste numérotée");
+    QAction* actionNormalText = formatMenu->addAction("Texte normal");
+    formatMenu->addSeparator();
+    QAction* actionConvertList = formatMenu->addAction("Convertir les tirets existants");
+    menu.addSeparator();
+
+
 
     QMenu* colorMenu = menu.addMenu("Changer couleur");
     colorMenu->addAction("Jaune")->setData("#FFF59D");
@@ -432,6 +494,38 @@ void StickyWindow::showContextMenu(const QPoint& pos) {
         emit duplicateNoteRequested(getModel());
     } else if (selected == actionList) {
         emit showNotesListRequested();
+    } else if (selected == actionBulletList) {
+        QTextCursor cursor = m_textEdit->textCursor();
+        cursor.beginEditBlock();
+        QTextListFormat format;
+        format.setStyle(QTextListFormat::ListDisc);
+        format.setIndent(1);
+        cursor.createList(format);
+        cursor.endEditBlock();
+        saveTriggered();
+    } else if (selected == actionNumberedList) {
+        QTextCursor cursor = m_textEdit->textCursor();
+        cursor.beginEditBlock();
+        QTextListFormat format;
+        format.setStyle(QTextListFormat::ListDecimal);
+        format.setIndent(1);
+        cursor.createList(format);
+        cursor.endEditBlock();
+        saveTriggered();
+    } else if (selected == actionNormalText) {
+        QTextCursor cursor = m_textEdit->textCursor();
+        cursor.beginEditBlock();
+        QTextBlockFormat blockFormat;
+        blockFormat.setIndent(0);
+        cursor.setBlockFormat(blockFormat);
+        if (QTextList* list = cursor.currentList()) {
+            list->remove(cursor.block());
+        }
+        cursor.endEditBlock();
+        saveTriggered();
+    } else if (selected == actionConvertList) {
+        convertPlainListToHtmlList();
+
     } else if (selected == actionPin) {
         toggleAlwaysOnTop();
     } else if (selected == actionLock) {
@@ -600,6 +694,7 @@ bool StickyWindow::eventFilter(QObject *watched, QEvent *event) {
     }
 
     if ((watched == m_textEdit || watched == m_textEdit->viewport()) && !m_model.locked) {
+
         if (event->type() == QEvent::MouseMove) {
             QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
             QPoint localPos = mapFromGlobal(mouseEvent->globalPosition().toPoint());
@@ -653,6 +748,161 @@ bool StickyWindow::eventFilter(QObject *watched, QEvent *event) {
             m_resizeActive = false;
             m_resizeEdge = 0;
             m_textEdit->viewport()->setCursor(Qt::IBeamCursor);
+        } else if (event->type() == QEvent::KeyPress) {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+            
+            // Raccourci Ctrl+B pour le gras
+            if (keyEvent->modifiers() == Qt::ControlModifier && keyEvent->key() == Qt::Key_B) {
+                QTextCharFormat format;
+                format.setFontWeight(m_textEdit->fontWeight() == QFont::Bold ? QFont::Normal : QFont::Bold);
+                m_textEdit->mergeCurrentCharFormat(format);
+                saveTriggered();
+                return true;
+            }
+
+            // Raccourci Ctrl+I pour l'italique
+            if (keyEvent->modifiers() == Qt::ControlModifier && keyEvent->key() == Qt::Key_I) {
+                QTextCharFormat format;
+                format.setFontItalic(!m_textEdit->fontItalic());
+                m_textEdit->mergeCurrentCharFormat(format);
+                saveTriggered();
+                return true;
+            }
+
+            // Raccourci Ctrl+Shift+L pour basculer la liste à puces
+            if (keyEvent->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier) && keyEvent->key() == Qt::Key_L) {
+                QTextCursor cursor = m_textEdit->textCursor();
+                cursor.beginEditBlock();
+                if (cursor.currentList()) {
+                    QTextList* list = cursor.currentList();
+                    list->remove(cursor.block());
+                } else {
+                    QTextListFormat format;
+                    format.setStyle(QTextListFormat::ListDisc);
+                    format.setIndent(1);
+                    cursor.insertList(format);
+                }
+                cursor.endEditBlock();
+                return true;
+            }
+
+            // Détection de l'espace pour conversion automatique de "# ", "## ", "### ", "- ", "* ", ou "1. "
+            if (keyEvent->key() == Qt::Key_Space) {
+                QTextCursor cursor = m_textEdit->textCursor();
+                QTextBlock block = cursor.block();
+                int posInBlock = cursor.positionInBlock();
+                QString text = block.text().left(posInBlock);
+                
+                if (text == "#") {
+                    cursor.beginEditBlock();
+                    cursor.movePosition(QTextCursor::StartOfBlock);
+                    cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, posInBlock);
+                    cursor.removeSelectedText();
+                    
+                    QTextBlockFormat format;
+                    format.setHeadingLevel(1);
+                    cursor.setBlockFormat(format);
+                    
+                    QTextCharFormat charFormat;
+                    charFormat.setFontPointSize(m_currentFontSize + 8);
+                    charFormat.setFontWeight(QFont::Bold);
+                    cursor.mergeBlockCharFormat(charFormat);
+                    
+                    cursor.endEditBlock();
+                    saveTriggered();
+                    return true;
+                } else if (text == "##") {
+                    cursor.beginEditBlock();
+                    cursor.movePosition(QTextCursor::StartOfBlock);
+                    cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, posInBlock);
+                    cursor.removeSelectedText();
+                    
+                    QTextBlockFormat format;
+                    format.setHeadingLevel(2);
+                    cursor.setBlockFormat(format);
+                    
+                    QTextCharFormat charFormat;
+                    charFormat.setFontPointSize(m_currentFontSize + 4);
+                    charFormat.setFontWeight(QFont::Bold);
+                    cursor.mergeBlockCharFormat(charFormat);
+                    
+                    cursor.endEditBlock();
+                    saveTriggered();
+                    return true;
+                } else if (text == "###") {
+                    cursor.beginEditBlock();
+                    cursor.movePosition(QTextCursor::StartOfBlock);
+                    cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, posInBlock);
+                    cursor.removeSelectedText();
+                    
+                    QTextBlockFormat format;
+                    format.setHeadingLevel(3);
+                    cursor.setBlockFormat(format);
+                    
+                    QTextCharFormat charFormat;
+                    charFormat.setFontPointSize(m_currentFontSize + 2);
+                    charFormat.setFontWeight(QFont::Bold);
+                    cursor.mergeBlockCharFormat(charFormat);
+                    
+                    cursor.endEditBlock();
+                    saveTriggered();
+                    return true;
+                } else if (text == "-" || text == "*") {
+                    QTextBlock prevBlock = block.previous();
+                    QTextList* existingList = nullptr;
+                    if (prevBlock.isValid() && prevBlock.textList() && prevBlock.textList()->format().style() == QTextListFormat::ListDisc) {
+                        existingList = prevBlock.textList();
+                    }
+
+                    cursor.beginEditBlock();
+                    cursor.movePosition(QTextCursor::StartOfBlock);
+                    cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, posInBlock);
+                    cursor.removeSelectedText();
+                    
+                    QTextBlockFormat blockFormat = cursor.blockFormat();
+                    blockFormat.setIndent(0);
+                    cursor.setBlockFormat(blockFormat);
+                    
+                    if (existingList) {
+                        existingList->add(cursor.block());
+                    } else {
+                        QTextListFormat format;
+                        format.setStyle(QTextListFormat::ListDisc);
+                        format.setIndent(1);
+                        cursor.createList(format);
+                    }
+                    cursor.endEditBlock();
+                    saveTriggered();
+                    return true;
+                } else if (text == "1.") {
+                    QTextBlock prevBlock = block.previous();
+                    QTextList* existingList = nullptr;
+                    if (prevBlock.isValid() && prevBlock.textList() && prevBlock.textList()->format().style() == QTextListFormat::ListDecimal) {
+                        existingList = prevBlock.textList();
+                    }
+
+                    cursor.beginEditBlock();
+                    cursor.movePosition(QTextCursor::StartOfBlock);
+                    cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, posInBlock);
+                    cursor.removeSelectedText();
+                    
+                    QTextBlockFormat blockFormat = cursor.blockFormat();
+                    blockFormat.setIndent(0);
+                    cursor.setBlockFormat(blockFormat);
+                    
+                    if (existingList) {
+                        existingList->add(cursor.block());
+                    } else {
+                        QTextListFormat format;
+                        format.setStyle(QTextListFormat::ListDecimal);
+                        format.setIndent(1);
+                        cursor.createList(format);
+                    }
+                    cursor.endEditBlock();
+                    saveTriggered();
+                    return true;
+                }
+            }
         }
     }
 
@@ -759,7 +1009,7 @@ QIcon StickyWindow::createColorBadgeIcon(const QString& hexColor) {
     return QIcon(pixmap);
 }
 
-QIcon StickyWindow::createBoldIcon() {
+QIcon StickyWindow::createFormatIcon() {
     QPixmap pixmap(32, 32);
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
@@ -771,11 +1021,17 @@ QIcon StickyWindow::createBoldIcon() {
     font.setBold(true);
     painter.setFont(font);
     painter.setPen(color);
-    painter.drawText(QRect(0, 0, 32, 32), Qt::AlignCenter, "B");
+    painter.drawText(QRect(0, 0, 32, 28), Qt::AlignCenter, "A");
+
+    // Dessiner une barre de soulignement de couleur sous le A
+    painter.setPen(QPen(color, 2));
+    painter.drawLine(8, 26, 24, 26);
 
     painter.end();
     return QIcon(pixmap);
 }
+
+
 
 void StickyWindow::toggleAutostart() {
     QString homePath = QDir::homePath();
@@ -886,5 +1142,108 @@ QIcon StickyWindow::createSyncIcon(bool synced, bool enabled) {
     painter.end();
     return QIcon(pixmap);
 }
+
+void StickyWindow::convertPlainListToHtmlList() {
+    QTextCursor cursor = m_textEdit->textCursor();
+    cursor.beginEditBlock();
+    
+    QTextDocument* doc = m_textEdit->document();
+    QTextBlock block = doc->end().previous();
+    while (block.isValid()) {
+        QString text = block.text().trimmed();
+        if (text.startsWith("-") || text.startsWith("*")) {
+            int prefixLen = 1;
+            QString rawText = block.text();
+            int firstNonSpace = 0;
+            while (firstNonSpace < rawText.length() && rawText[firstNonSpace].isSpace()) {
+                firstNonSpace++;
+            }
+            if (firstNonSpace < rawText.length() && (rawText[firstNonSpace] == '-' || rawText[firstNonSpace] == '*')) {
+                int startPrefix = firstNonSpace;
+                firstNonSpace++; // après le tiret/astérisque
+                while (firstNonSpace < rawText.length() && rawText[firstNonSpace].isSpace()) {
+                    firstNonSpace++;
+                }
+                prefixLen = firstNonSpace - startPrefix;
+                
+                QTextCursor blockCursor(block);
+                blockCursor.movePosition(QTextCursor::StartOfBlock);
+                blockCursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, startPrefix);
+                blockCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, prefixLen);
+                blockCursor.removeSelectedText();
+                
+                // Vérifier s'il y a une liste existante dans le bloc suivant (de type ListDisc)
+                QTextBlock nextBlock = block.next();
+                QTextList* existingList = nullptr;
+                if (nextBlock.isValid() && nextBlock.textList() && nextBlock.textList()->format().style() == QTextListFormat::ListDisc) {
+                    existingList = nextBlock.textList();
+                }
+
+                QTextBlockFormat blockFormat = blockCursor.blockFormat();
+                blockFormat.setIndent(0);
+                blockCursor.setBlockFormat(blockFormat);
+
+                if (existingList) {
+                    existingList->add(block);
+                } else {
+                    QTextListFormat format;
+                    format.setStyle(QTextListFormat::ListDisc);
+                    format.setIndent(1);
+                    blockCursor.createList(format);
+                }
+            }
+        } else if (text.startsWith("1.")) {
+            QString rawText = block.text();
+            int firstNonSpace = 0;
+            while (firstNonSpace < rawText.length() && rawText[firstNonSpace].isSpace()) {
+                firstNonSpace++;
+            }
+            if (firstNonSpace < rawText.length() - 1 && rawText[firstNonSpace] == '1' && rawText[firstNonSpace+1] == '.') {
+                int startPrefix = firstNonSpace;
+                firstNonSpace += 2; // après le "1."
+                while (firstNonSpace < rawText.length() && rawText[firstNonSpace].isSpace()) {
+                    firstNonSpace++;
+                }
+                int prefixLen = firstNonSpace - startPrefix;
+                
+                QTextCursor blockCursor(block);
+                blockCursor.movePosition(QTextCursor::StartOfBlock);
+                blockCursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, startPrefix);
+                blockCursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, prefixLen);
+                blockCursor.removeSelectedText();
+                
+                // Vérifier s'il y a une liste existante dans le bloc suivant (de type ListDecimal)
+                QTextBlock nextBlock = block.next();
+                QTextList* existingList = nullptr;
+                if (nextBlock.isValid() && nextBlock.textList() && nextBlock.textList()->format().style() == QTextListFormat::ListDecimal) {
+                    existingList = nextBlock.textList();
+                }
+
+                QTextBlockFormat blockFormat = blockCursor.blockFormat();
+                blockFormat.setIndent(0);
+                blockCursor.setBlockFormat(blockFormat);
+
+                if (existingList) {
+                    existingList->add(block);
+                } else {
+                    QTextListFormat format;
+                    format.setStyle(QTextListFormat::ListDecimal);
+                    format.setIndent(1);
+                    blockCursor.createList(format);
+                }
+            }
+        }
+        block = block.previous();
+    }
+    
+    cursor.endEditBlock();
+    saveTriggered();
+}
+
+
+
+
+
+
 
 

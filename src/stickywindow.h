@@ -65,6 +65,8 @@ private:
     QColor getContrastColor(const QColor& background) const;
     void adjustFontSize(int delta);
     void updateTitle();
+    void convertPlainListToHtmlList();
+    static QIcon createFormatIcon();
 
     NoteModel m_model;
     
@@ -73,7 +75,7 @@ private:
     QPushButton* m_menuButton;
     QLabel* m_titleLabel;
     QPushButton* m_plusButton;
-    QPushButton* m_boldButton;
+    QPushButton* m_formatButton;
     QPushButton* m_colorBadgeButton;
     QPushButton* m_lockButton;
     QPushButton* m_syncButton;
