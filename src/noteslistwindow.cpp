@@ -146,9 +146,9 @@ NoteCardWidget::NoteCardWidget(const NoteModel& note, QWidget* parent)
     });
 }
 
-QString NoteCardWidget::getPlainPreview(const QString& markdownContent) const {
+QString NoteCardWidget::getPlainPreview(const QString& htmlContent) const {
     QTextDocument doc;
-    doc.setMarkdown(markdownContent);
+    doc.setHtml(htmlContent);
     return doc.toPlainText();
 }
 
@@ -372,7 +372,7 @@ void NotesListWindow::filterNotes(const QString& text) {
             for (const auto& note : m_notes) {
                 if (note.id == card->id()) {
                     QTextDocument doc;
-                    doc.setMarkdown(note.content);
+                    doc.setHtml(note.content);
                     QString plainText = doc.toPlainText().toLower();
                     
                     if (plainText.contains(query) || note.tags.join(" ").toLower().contains(query)) {
