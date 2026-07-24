@@ -14,6 +14,7 @@
 
 class NotesListWindow;
 class SyncManager;
+class UpdateManager;
 
 class NotesManager : public QObject {
     Q_OBJECT
@@ -35,6 +36,8 @@ private slots:
     void onLogoutRequested();
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
     void syncWithServer();
+    void onCheckUpdateRequested(bool silent = false);
+    void onApplyUpdateRequested();
 
 private:
     void createNoteWindow(const NoteModel& model);
@@ -46,10 +49,12 @@ private:
 
     std::unique_ptr<IStorageProvider> m_storage;
     std::unique_ptr<SyncManager> m_sync;
+    UpdateManager* m_updateManager = nullptr;
     std::vector<NoteModel> m_notes;
     std::map<QString, StickyWindow*> m_windows;
     NotesListWindow* m_listWindow = nullptr;
     QSystemTrayIcon* m_trayIcon = nullptr;
+    QAction* m_updateAction = nullptr;
     QTimer* m_syncTimer = nullptr;
     QStringList m_deletedNotesPendingSync;
 };

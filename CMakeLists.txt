@@ -29,6 +29,8 @@ add_executable(tux-it
     src/setupwizard.cpp
     src/syncqrcodedialog.h
     src/syncqrcodedialog.cpp
+    src/updatemanager.h
+    src/updatemanager.cpp
     src/resources.qrc
 )
 

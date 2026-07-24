@@ -47,10 +47,17 @@ signals:
     void deleteNoteRequested(const QString& id);
     void newNoteRequested();
     void mobileSyncRequested();
+    void checkUpdateRequested();
+    void applyUpdateRequested();
+
+public slots:
+    void setUpdateAvailable(bool available, const QString& currentHash = "", const QString& remoteHash = "", const QString& commitSubject = "");
+    void setUpdateChecking(bool checking);
 
 private slots:
     void filterNotes(const QString& text);
     void toggleTheme();
+    void onUpdateBtnClicked();
 
 private:
     void setupUi();
@@ -62,8 +69,13 @@ private:
     QLineEdit* m_searchEdit;
     QPushButton* m_closeButton;
     QPushButton* m_themeToggleBtn;
+    QPushButton* m_updateBtn;
     std::vector<NoteModel> m_notes;
     bool m_darkTheme;
+    bool m_hasUpdate = false;
+    QString m_currentHash;
+    QString m_remoteHash;
+    QString m_commitSubject;
 };
 
 #endif // NOTESLISTWINDOW_H

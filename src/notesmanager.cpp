@@ -3,11 +3,13 @@
 #include "syncmanager.h"
 #include "setupwizard.h"
 #include "syncqrcodedialog.h"
+#include "updatemanager.h"
 #include <QUuid>
 #include <QDateTime>
 #include <QScreen>
 #include <QApplication>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QAction>
@@ -17,6 +19,44 @@ NotesManager::NotesManager(std::unique_ptr<IStorageProvider> storageProvider, QO
     , m_storage(std::move(storageProvider))
     , m_sync(std::make_unique<SyncManager>(this))
 {
+    m_updateManager = new UpdateManager(this);
+
+    connect(m_updateManager, &UpdateManager::updateCheckStarted, this, [this]() {
+        if (m_listWindow) m_listWindow->setUpdateChecking(true);
+    });
+
+    connect(m_updateManager, &UpdateManager::updateAvailable, this, [this](const QString& currentHash, const QString& remoteHash, const QString& commitSubject) {
+        if (m_listWindow) {
+            m_listWindow->setUpdateChecking(false);
+            m_listWindow->setUpdateAvailable(true, currentHash, remoteHash, commitSubject);
+        }
+        if (m_trayIcon) {
+            m_trayIcon->showMessage("Tux-It - Mise à jour disponible", QString("Nouveau commit: %1 (%2)").arg(commitSubject, remoteHash), QSystemTrayIcon::Information, 5000);
+        }
+        if (m_updateAction) {
+            m_updateAction->setText("Mise à jour disponible !");
+        }
+    });
+
+    connect(m_updateManager, &UpdateManager::noUpdateAvailable, this, [this](bool silent) {
+        if (m_listWindow) {
+            m_listWindow->setUpdateChecking(false);
+            m_listWindow->setUpdateAvailable(false);
+        }
+        if (!silent) {
+            QMessageBox::information(nullptr, "Mise à jour", "Votre application Tux-It est déjà à jour !");
+        }
+    });
+
+    connect(m_updateManager, &UpdateManager::updateCheckFailed, this, [this](const QString& errorMsg, bool silent) {
+        if (m_listWindow) {
+            m_listWindow->setUpdateChecking(false);
+        }
+        if (!silent) {
+            QMessageBox::warning(nullptr, "Vérification de mise à jour", errorMsg);
+        }
+    });
+
     // Connecter le signal de fin de synchronisation asynchrone
     connect(m_sync.get(), &SyncManager::syncFinished, this, [this](bool success) {
         if (success) {
@@ -172,6 +212,7 @@ void NotesManager::start() {
     }
 
     setupTrayIcon();
+    onCheckUpdateRequested(true);
 }
 
 void NotesManager::createNoteWindow(const NoteModel& note) {
@@ -323,6 +364,10 @@ void NotesManager::onShowNotesListRequested() {
         connect(m_listWindow, &NotesListWindow::deleteNoteRequested, this, &NotesManager::onDeleteNoteFromListRequested);
         connect(m_listWindow, &NotesListWindow::newNoteRequested, this, &NotesManager::onNewNoteRequested);
         connect(m_listWindow, &NotesListWindow::mobileSyncRequested, this, &NotesManager::onMobileSyncRequested);
+        connect(m_listWindow, &NotesListWindow::checkUpdateRequested, this, [this]() {
+            onCheckUpdateRequested(false);
+        });
+        connect(m_listWindow, &NotesListWindow::applyUpdateRequested, this, &NotesManager::onApplyUpdateRequested);
         connect(m_listWindow, &QObject::destroyed, this, [this]() {
             m_listWindow = nullptr;
             if (m_windows.empty()) {
@@ -429,11 +474,15 @@ void NotesManager::setupTrayIcon() {
     QMenu* trayMenu = new QMenu();
     QAction* listAction = trayMenu->addAction("Tableau de bord");
     QAction* newAction = trayMenu->addAction("Nouveau Tux-It");
+    m_updateAction = trayMenu->addAction("Vérifier les mises à jour");
     trayMenu->addSeparator();
     QAction* quitAction = trayMenu->addAction("Quitter");
 
     connect(listAction, &QAction::triggered, this, &NotesManager::onShowNotesListRequested);
     connect(newAction, &QAction::triggered, this, &NotesManager::onNewNoteRequested);
+    connect(m_updateAction, &QAction::triggered, this, [this]() {
+        onCheckUpdateRequested(false);
+    });
     connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
 
     m_trayIcon->setContextMenu(trayMenu);
@@ -536,4 +585,36 @@ void NotesManager::updateWindowsFromNotes() {
 
     // 2. On ne crée plus automatiquement des fenêtres à l'écran pour les nouvelles notes distantes.
     // L'utilisateur les verra dans le tableau de bord (liste) et pourra les ouvrir en un clic.
+}
+
+void NotesManager::onCheckUpdateRequested(bool silent) {
+    if (m_updateManager) {
+        m_updateManager->checkForUpdates(silent);
+    }
+}
+
+void NotesManager::onApplyUpdateRequested() {
+    if (!m_updateManager) return;
+
+    QProgressDialog progress("Préparation de la mise à jour...", QString(), 0, 0, nullptr);
+    progress.setWindowModality(Qt::ApplicationModal);
+    progress.setCancelButton(nullptr);
+    progress.setMinimumDuration(0);
+    progress.setWindowTitle("Mise à jour de Tux-It");
+    progress.show();
+    QApplication::processEvents();
+
+    connect(m_updateManager, &UpdateManager::updateProgress, &progress, [&progress](const QString& stepMsg) {
+        progress.setLabelText(stepMsg);
+        QApplication::processEvents();
+    });
+
+    connect(m_updateManager, &UpdateManager::updateFinished, &progress, [&progress](bool success, const QString& msg) {
+        progress.close();
+        if (!success) {
+            QMessageBox::critical(nullptr, "Échec de la mise à jour", msg);
+        }
+    });
+
+    m_updateManager->applyUpdate();
 }

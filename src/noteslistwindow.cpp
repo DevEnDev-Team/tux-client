@@ -1,5 +1,6 @@
 #include "noteslistwindow.h"
 #include "stickywindow.h"
+#include "updatemanager.h"
 #include <QTextDocument>
 #include <QLabel>
 #include <QHBoxLayout>
@@ -296,6 +297,13 @@ void NotesListWindow::setupUi() {
     m_themeToggleBtn->setCursor(Qt::PointingHandCursor);
     m_themeToggleBtn->setToolTip("Changer de thème (Clair / Sombre)");
 
+    m_updateBtn = new QPushButton(this);
+    m_updateBtn->setObjectName("updateBtn");
+    m_updateBtn->setCursor(Qt::PointingHandCursor);
+    m_updateBtn->setIcon(UpdateManager::createUpdateIcon(false, m_darkTheme));
+    m_updateBtn->setIconSize(QSize(20, 20));
+    m_updateBtn->setToolTip("Vérifier les mises à jour");
+
     QPushButton* newNoteBtn = new QPushButton("Nouveau Tux-It", this);
     newNoteBtn->setObjectName("newNoteBtn");
     newNoteBtn->setCursor(Qt::PointingHandCursor);
@@ -303,6 +311,7 @@ void NotesListWindow::setupUi() {
     searchLayout->addWidget(m_searchEdit, 1);
     searchLayout->addWidget(mobileSyncBtn);
     searchLayout->addWidget(m_themeToggleBtn);
+    searchLayout->addWidget(m_updateBtn);
     searchLayout->addWidget(newNoteBtn);
     mainLayout->addLayout(searchLayout);
 
@@ -329,6 +338,7 @@ void NotesListWindow::setupUi() {
     connect(m_searchEdit, &QLineEdit::textChanged, this, &NotesListWindow::filterNotes);
     connect(mobileSyncBtn, &QPushButton::clicked, this, &NotesListWindow::mobileSyncRequested);
     connect(m_themeToggleBtn, &QPushButton::clicked, this, &NotesListWindow::toggleTheme);
+    connect(m_updateBtn, &QPushButton::clicked, this, &NotesListWindow::onUpdateBtnClicked);
     connect(newNoteBtn, &QPushButton::clicked, this, &NotesListWindow::newNoteRequested);
     connect(m_closeButton, &QPushButton::clicked, this, &NotesListWindow::close);
 }
@@ -391,6 +401,10 @@ void NotesListWindow::applyTheme(bool dark) {
     m_themeToggleBtn->setIcon(createThemeIcon(dark));
     m_themeToggleBtn->setIconSize(QSize(20, 20));
 
+    if (m_updateBtn && !m_hasUpdate) {
+        m_updateBtn->setIcon(UpdateManager::createUpdateIcon(false, dark));
+    }
+
     if (dark) {
         setStyleSheet(
             "NotesListWindow { background-color: #1e1e24; }"
@@ -403,6 +417,8 @@ void NotesListWindow::applyTheme(bool dark) {
             "QPushButton#mobileSyncBtn::hover { background-color: #651fff; }"
             "QPushButton#themeToggleBtn { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 8px; padding: 0; width: 32px; height: 32px; color: #ffffff; }"
             "QPushButton#themeToggleBtn::hover { background-color: #3f3f50; }"
+            "QPushButton#updateBtn { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 8px; padding: 0 8px; height: 32px; color: #ffffff; font-size: 12px; }"
+            "QPushButton#updateBtn::hover { background-color: #3f3f50; }"
             "QListWidget { background-color: transparent; border: none; }"
             "QPushButton#closeBtn { background-color: #2b2b36; border: 1px solid #3f3f50; border-radius: 6px; padding: 6px 16px; color: #ffffff; font-size: 12px; }"
             "QPushButton#closeBtn::hover { background-color: #3f3f50; }"
@@ -419,10 +435,16 @@ void NotesListWindow::applyTheme(bool dark) {
             "QPushButton#mobileSyncBtn::hover { background-color: #651fff; }"
             "QPushButton#themeToggleBtn { background-color: #ffffff; border: 1px solid #d2d2d7; border-radius: 8px; padding: 0; width: 32px; height: 32px; color: #1d1d1f; }"
             "QPushButton#themeToggleBtn::hover { background-color: #e8e8ed; }"
+            "QPushButton#updateBtn { background-color: #ffffff; border: 1px solid #d2d2d7; border-radius: 8px; padding: 0 8px; height: 32px; color: #1d1d1f; font-size: 12px; }"
+            "QPushButton#updateBtn::hover { background-color: #e8e8ed; }"
             "QListWidget { background-color: transparent; border: none; }"
             "QPushButton#closeBtn { background-color: #ffffff; border: 1px solid #d2d2d7; border-radius: 6px; padding: 6px 16px; color: #1d1d1f; font-size: 12px; }"
             "QPushButton#closeBtn::hover { background-color: #e8e8ed; }"
         );
+    }
+
+    if (m_hasUpdate && m_updateBtn) {
+        m_updateBtn->setStyleSheet("QPushButton#updateBtn { background-color: #0284c7; border: 1px solid #0369a1; border-radius: 8px; padding: 0 12px; height: 32px; color: #ffffff; font-weight: bold; font-size: 12px; } QPushButton#updateBtn::hover { background-color: #0369a1; }");
     }
 }
 
@@ -459,5 +481,53 @@ void NotesListWindow::saveThemeSetting(bool dark) {
     if (file.open(QIODevice::WriteOnly)) {
         file.write(QJsonDocument(obj).toJson(QJsonDocument::Indented));
         file.close();
+    }
+}
+
+void NotesListWindow::setUpdateAvailable(bool available, const QString& currentHash, const QString& remoteHash, const QString& commitSubject) {
+    m_hasUpdate = available;
+    m_currentHash = currentHash;
+    m_remoteHash = remoteHash;
+    m_commitSubject = commitSubject;
+
+    if (m_updateBtn) {
+        m_updateBtn->setIcon(UpdateManager::createUpdateIcon(available, m_darkTheme));
+        if (available) {
+            m_updateBtn->setToolTip(QString("Mise à jour disponible!\nNouveau commit: %1 (%2)").arg(commitSubject, remoteHash));
+            m_updateBtn->setText("Mise à jour disponible");
+            m_updateBtn->setStyleSheet("QPushButton#updateBtn { background-color: #0284c7; border: 1px solid #0369a1; border-radius: 8px; padding: 0 12px; height: 32px; color: #ffffff; font-weight: bold; font-size: 12px; } QPushButton#updateBtn::hover { background-color: #0369a1; }");
+        } else {
+            m_updateBtn->setToolTip("L'application est à jour");
+            m_updateBtn->setText("");
+            applyTheme(m_darkTheme);
+        }
+    }
+}
+
+void NotesListWindow::setUpdateChecking(bool checking) {
+    if (m_updateBtn) {
+        if (checking) {
+            m_updateBtn->setIcon(UpdateManager::createRefreshIcon(m_darkTheme));
+            m_updateBtn->setToolTip("Vérification des mises à jour en cours...");
+        } else {
+            m_updateBtn->setIcon(UpdateManager::createUpdateIcon(m_hasUpdate, m_darkTheme));
+        }
+    }
+}
+
+void NotesListWindow::onUpdateBtnClicked() {
+    if (m_hasUpdate) {
+        QMessageBox msgBox(this);
+        msgBox.setWindowTitle("Mise à jour de Tux-It");
+        msgBox.setIcon(QMessageBox::Information);
+        msgBox.setText("Une nouvelle version de Tux-It est disponible.");
+        msgBox.setInformativeText(QString("Nouveau commit distant :\n\"%1\" (%2)\n\nVoulez-vous télécharger, recompiler et redémarrer Tux-It maintenant ?").arg(m_commitSubject, m_remoteHash));
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        if (msgBox.exec() == QMessageBox::Yes) {
+            emit applyUpdateRequested();
+        }
+    } else {
+        emit checkUpdateRequested();
     }
 }
