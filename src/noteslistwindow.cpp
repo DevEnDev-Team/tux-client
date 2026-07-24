@@ -18,12 +18,12 @@
 #include <QStandardPaths>
 #include <QStyleOption>
 
-// --- NoteCardWidget ---
 NoteCardWidget::NoteCardWidget(const NoteModel& note, QWidget* parent)
     : QWidget(parent)
     , m_id(note.id)
 {
     setFixedHeight(60);
+    setCursor(Qt::PointingHandCursor);
 
     // Layout principal horizontal pour former une ligne
     QHBoxLayout* layout = new QHBoxLayout(this);
@@ -45,6 +45,7 @@ NoteCardWidget::NoteCardWidget(const NoteModel& note, QWidget* parent)
     QString title = getTitleFromContent(plainText);
     QLabel* titleLabel = new QLabel(title, this);
     titleLabel->setStyleSheet(QString("font-weight: bold; font-size: 13px; color: %1; background: transparent; border: none;").arg(textColorHex));
+    titleLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     QString bodyPreview = plainText.mid(title.length()).trimmed();
     if (bodyPreview.isEmpty()) {
@@ -57,6 +58,7 @@ NoteCardWidget::NoteCardWidget(const NoteModel& note, QWidget* parent)
     }
     QLabel* previewLabel = new QLabel(bodyPreview, this);
     previewLabel->setStyleSheet(QString("font-size: 11px; color: %1; background: transparent; border: none;").arg(textMutedColorHex));
+    previewLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     textLayout->addWidget(titleLabel);
     textLayout->addWidget(previewLabel);
@@ -64,6 +66,7 @@ NoteCardWidget::NoteCardWidget(const NoteModel& note, QWidget* parent)
     // Date de modification
     QLabel* dateLabel = new QLabel(note.lastModified.toString("dd/MM yyyy hh:mm"), this);
     dateLabel->setStyleSheet(QString("font-size: 10px; color: %1; background: transparent; border: none;").arg(textMutedColorHex));
+    dateLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     // Boutons d'actions rapides adaptés selon le contraste
     m_openButton = new QPushButton("Ouvrir", this);
@@ -115,6 +118,7 @@ NoteCardWidget::NoteCardWidget(const NoteModel& note, QWidget* parent)
         syncIconLabel->setPixmap(StickyWindow::createSyncIcon(note.synced, true).pixmap(16, 16));
         syncIconLabel->setToolTip(note.synced ? "Note synchronisée en ligne" : "Modifications locales non synchronisées");
         syncIconLabel->setStyleSheet("background: transparent; border: none;");
+        syncIconLabel->setAttribute(Qt::WA_TransparentForMouseEvents);
     }
 
     layout->addLayout(textLayout, 1);
@@ -170,6 +174,18 @@ void NoteCardWidget::paintEvent(QPaintEvent* event) {
     opt.initFrom(this);
     QPainter p(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
+}
+
+void NoteCardWidget::mouseReleaseEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton) {
+        QWidget* child = childAt(event->pos());
+        if (child != m_deleteButton && (!m_deleteButton || !m_deleteButton->isAncestorOf(child))) {
+            emit openRequested(m_id);
+            event->accept();
+            return;
+        }
+    }
+    QWidget::mouseReleaseEvent(event);
 }
 
 static QIcon createQrIcon() {

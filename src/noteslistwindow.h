@@ -10,6 +10,8 @@
 #include <vector>
 #include "notemodel.h"
 
+#include <QMouseEvent>
+
 // Widget personnalisé représentant un Post-it miniature sous forme de carte cool
 class NoteCardWidget : public QWidget {
     Q_OBJECT
@@ -31,6 +33,7 @@ private:
 
 protected:
     void paintEvent(QPaintEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
 };
 
 // Fenêtre de liste de tous les Post-its
