@@ -21,6 +21,11 @@ echo -e "${BLUE}2. Configuration des dossiers locaux...${NC}"
 mkdir -p "$HOME/.local/bin"
 mkdir -p "$HOME/.local/share/icons"
 mkdir -p "$HOME/.local/share/applications"
+mkdir -p "$HOME/.config/DevEnDev/Tux-It"
+
+# Enregistrement du chemin du dépôt Git pour les mises à jour automatiques
+REPO_DIR=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+echo "$REPO_DIR" > "$HOME/.config/DevEnDev/Tux-It/repo_path.txt"
 
 # 3. Copie de l'exécutable
 echo -e "${BLUE}3. Copie de l'exécutable vers ~/.local/bin/...${NC}"

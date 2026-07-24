@@ -507,9 +507,11 @@ void NotesListWindow::setUpdateAvailable(bool available, const QString& currentH
 void NotesListWindow::setUpdateChecking(bool checking) {
     if (m_updateBtn) {
         if (checking) {
-            m_updateBtn->setIcon(UpdateManager::createRefreshIcon(m_darkTheme));
+            m_updateBtn->setIcon(UpdateManager::createHourglassIcon(m_darkTheme));
             m_updateBtn->setToolTip("Vérification des mises à jour en cours...");
+            m_updateBtn->setEnabled(false);
         } else {
+            m_updateBtn->setEnabled(true);
             m_updateBtn->setIcon(UpdateManager::createUpdateIcon(m_hasUpdate, m_darkTheme));
         }
     }
@@ -528,6 +530,7 @@ void NotesListWindow::onUpdateBtnClicked() {
             emit applyUpdateRequested();
         }
     } else {
+        setUpdateChecking(true);
         emit checkUpdateRequested();
     }
 }

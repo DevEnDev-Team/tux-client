@@ -1,11 +1,14 @@
 #include "updatemanager.h"
 #include <QCoreApplication>
 #include <QDir>
+#include <QDirIterator>
 #include <QFile>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmap>
 #include <QProcess>
+#include <QStandardPaths>
+#include <QTextStream>
 #include <QDebug>
 #include <QThread>
 
@@ -23,22 +26,146 @@ bool UpdateManager::isGitRepository() const {
     return !getGitRepoPath().isEmpty();
 }
 
-QString UpdateManager::getGitRepoPath() const {
-    // 1. Essayer le dossier courant de l'application ou ses parents
+static QString checkGitRepo(const QString& path) {
+    if (path.isEmpty()) return QString();
+    QDir dir(path);
+    if (!dir.exists()) return QString();
+
     QProcess proc;
-    proc.setWorkingDirectory(QCoreApplication::applicationDirPath());
+    proc.setWorkingDirectory(path);
     proc.start("git", QStringList() << "rev-parse" << "--show-toplevel");
     if (proc.waitForFinished(2000) && proc.exitCode() == 0) {
-        QString path = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
-        if (!path.isEmpty()) return path;
+        QString repoPath = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+        if (!repoPath.isEmpty() && QDir(repoPath).exists()) {
+            return repoPath;
+        }
+    }
+    return QString();
+}
+
+static void saveRepoPath(const QString& repoPath) {
+    if (repoPath.isEmpty()) return;
+    QString configDir = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    QDir().mkpath(configDir);
+    QFile file(QDir(configDir).filePath("repo_path.txt"));
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&file);
+        out << repoPath << "\n";
+    }
+}
+
+QString UpdateManager::getGitRepoPath() const {
+    // 1. Lire le chemin enregistré dans le fichier de configuration (AppConfigLocation)
+    QString configDir = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    QString configFilePath = QDir(configDir).filePath("repo_path.txt");
+    QFile file(configFilePath);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        QString savedPath = in.readLine().trimmed();
+        file.close();
+        QString valid = checkGitRepo(savedPath);
+        if (!valid.isEmpty()) return valid;
     }
 
-    // 2. Fallback sur le dossier d'exécution de travail
-    proc.setWorkingDirectory(QDir::currentPath());
-    proc.start("git", QStringList() << "rev-parse" << "--show-toplevel");
-    if (proc.waitForFinished(2000) && proc.exitCode() == 0) {
-        QString path = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
-        if (!path.isEmpty()) return path;
+    // 1b. Fallback dossier config alternatif ~/.config/tux-it/repo_path.txt
+    QString altConfigFilePath = QDir::homePath() + "/.config/tux-it/repo_path.txt";
+    QFile altFile(altConfigFilePath);
+    if (altFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&altFile);
+        QString savedPath = in.readLine().trimmed();
+        altFile.close();
+        QString valid = checkGitRepo(savedPath);
+        if (!valid.isEmpty()) {
+            saveRepoPath(valid);
+            return valid;
+        }
+    }
+
+    // 2. Variables d'environnement TUX_IT_REPO ou TUX_REPO_PATH
+    QString envPath = QString::fromUtf8(qgetenv("TUX_IT_REPO"));
+    if (envPath.isEmpty()) envPath = QString::fromUtf8(qgetenv("TUX_REPO_PATH"));
+    if (!envPath.isEmpty()) {
+        QString valid = checkGitRepo(envPath);
+        if (!valid.isEmpty()) {
+            saveRepoPath(valid);
+            return valid;
+        }
+    }
+
+    // 3. Essayer le dossier courant de l'application ou ses parents
+    QString appValid = checkGitRepo(QCoreApplication::applicationDirPath());
+    if (!appValid.isEmpty()) {
+        saveRepoPath(appValid);
+        return appValid;
+    }
+
+    // 4. Essayer le dossier d'exécution de travail courant
+    QString currValid = checkGitRepo(QDir::currentPath());
+    if (!currValid.isEmpty()) {
+        saveRepoPath(currValid);
+        return currValid;
+    }
+
+    // 5. Recherche dans les chemins usuels connus
+    QString home = QDir::homePath();
+    QStringList candidates = {
+        home + "/Documents/Projets/logiciel/tux-it/tux-client",
+        home + "/Documents/Projets/logiciel/tux-it",
+        home + "/Documents/Projets/tux-client",
+        home + "/Documents/Projets/tux-it",
+        home + "/Documents/Projects/tux-client",
+        home + "/Documents/Projects/tux-it",
+        home + "/Documents/tux-client",
+        home + "/Documents/tux-it",
+        home + "/Projets/logiciel/tux-it/tux-client",
+        home + "/Projets/logiciel/tux-it",
+        home + "/Projets/tux-client",
+        home + "/Projets/tux-it",
+        home + "/Projects/tux-client",
+        home + "/Projects/tux-it",
+        home + "/tux-client",
+        home + "/tux-it",
+        home + "/src/tux-client",
+        home + "/src/tux-it",
+        home + "/dev/tux-client",
+        home + "/dev/tux-it",
+        home + "/Downloads/tux-client",
+        home + "/Downloads/tux-it"
+    };
+
+    for (const QString& candidate : candidates) {
+        QString valid = checkGitRepo(candidate);
+        if (!valid.isEmpty()) {
+            saveRepoPath(valid);
+            return valid;
+        }
+    }
+
+    // 6. Recherche dynamique dans les dossiers principaux
+    QStringList searchRoots = {
+        home + "/Documents",
+        home + "/Projects",
+        home + "/Projets",
+        home + "/Development",
+        home + "/src",
+        home + "/dev",
+        home + "/code"
+    };
+
+    for (const QString& root : searchRoots) {
+        QDir rootDir(root);
+        if (!rootDir.exists()) continue;
+
+        QDirIterator it(root, QStringList() << "tux-client" << "tux-it", QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+        int maxChecks = 20;
+        while (it.hasNext() && maxChecks-- > 0) {
+            QString dirPath = it.next();
+            QString valid = checkGitRepo(dirPath);
+            if (!valid.isEmpty()) {
+                saveRepoPath(valid);
+                return valid;
+            }
+        }
     }
 
     return QString();
@@ -142,14 +269,19 @@ void UpdateManager::applyUpdate() {
 
     emit updateProgress("Compilation et installation de l'application...");
 
-    // Si install.sh existe dans repoPath, l'exécuter
+    // Si install.sh existe dans repoPath (ou repoPath/tux-client), l'exécuter
     QString installScript = repoPath + "/install.sh";
     QProcess buildProc;
-    buildProc.setWorkingDirectory(repoPath);
 
     if (QFile::exists(installScript)) {
+        buildProc.setWorkingDirectory(repoPath);
+        buildProc.start("bash", QStringList() << installScript);
+    } else if (QFile::exists(repoPath + "/tux-client/install.sh")) {
+        installScript = repoPath + "/tux-client/install.sh";
+        buildProc.setWorkingDirectory(repoPath + "/tux-client");
         buildProc.start("bash", QStringList() << installScript);
     } else {
+        buildProc.setWorkingDirectory(repoPath);
         // Fallback compilation manuelle avec cmake & make
         buildProc.start("bash", QStringList() << "-c" << "mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc) && cp tux-it ~/.local/bin/tux-it");
     }
@@ -196,6 +328,51 @@ QIcon UpdateManager::createRefreshIcon(bool isDark) {
     arrow.lineTo(21, 11);
     painter.setBrush(color);
     painter.drawPath(arrow);
+
+    return QIcon(pixmap);
+}
+
+QIcon UpdateManager::createHourglassIcon(bool isDark) {
+    QPixmap pixmap(32, 32);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+
+    QColor frameColor = isDark ? QColor("#38BDF8") : QColor("#0284C7");
+    QColor sandColor  = isDark ? QColor("#F59E0B") : QColor("#D97706");
+
+    painter.setPen(QPen(frameColor, 2.2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter.setBrush(Qt::NoBrush);
+
+    // Plaques supérieure et inférieure du sablier
+    painter.drawLine(9, 6, 23, 6);
+    painter.drawLine(9, 26, 23, 26);
+
+    // Verre (corps du sablier)
+    QPainterPath glass;
+    glass.moveTo(11, 7);
+    glass.lineTo(21, 7);
+    glass.lineTo(16, 16);
+    glass.lineTo(21, 25);
+    glass.lineTo(11, 25);
+    glass.lineTo(16, 16);
+    glass.closeSubpath();
+    painter.drawPath(glass);
+
+    // Sable dans la partie inférieure (tas de sable)
+    QPainterPath bottomSand;
+    bottomSand.moveTo(12, 25);
+    bottomSand.lineTo(20, 25);
+    bottomSand.lineTo(17, 20);
+    bottomSand.lineTo(15, 20);
+    bottomSand.closeSubpath();
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(sandColor);
+    painter.drawPath(bottomSand);
+
+    // Fil de sable qui coule au centre
+    painter.setPen(QPen(sandColor, 1.5, Qt::SolidLine, Qt::RoundCap));
+    painter.drawLine(16, 14, 16, 21);
 
     return QIcon(pixmap);
 }

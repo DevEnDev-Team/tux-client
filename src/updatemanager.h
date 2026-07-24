@@ -19,6 +19,7 @@ public:
 
     static QIcon createUpdateIcon(bool hasUpdate, bool isDark = false);
     static QIcon createRefreshIcon(bool isDark = false);
+    static QIcon createHourglassIcon(bool isDark = false);
 
 signals:
     void updateCheckStarted();
