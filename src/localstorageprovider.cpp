@@ -40,7 +40,7 @@ std::vector<NoteModel> LocalStorageProvider::loadNotes() {
         note.content = obj["content"].toString();
         note.position = QPoint(obj["x"].toInt(100), obj["y"].toInt(100));
         note.size = QSize(obj["width"].toInt(250), obj["height"].toInt(250));
-        note.color = obj["color"].toString("#FFF59D");
+        note.color = normalizeNoteColor(obj["color"].toString("#FEF08A"));
         note.alwaysOnTop = obj["alwaysOnTop"].toBool(false);
         note.opacity = obj["opacity"].toDouble(1.0);
         note.locked = obj["locked"].toBool(false);

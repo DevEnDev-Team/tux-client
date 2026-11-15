@@ -23,9 +23,11 @@ public:
     void setSynced(bool synced);
     void updateFromModel(const NoteModel& model);
     static QIcon createPenguinIcon();
-    static QIcon createLockIcon(bool locked);
-    static QIcon createPlusIcon();
-    static QIcon createColorBadgeIcon(const QString& hexColor);
+    static QIcon createPinIcon(bool pinned, const QColor& color);
+    static QIcon createCloseIcon(const QColor& color);
+    static QIcon createLockIcon(bool locked, const QColor& color = QColor("#757575"));
+    static QIcon createPlusIcon(const QColor& color = QColor("#757575"));
+    static QIcon createColorBadgeIcon(const QString& hexColor, const QColor& strokeColor = QColor("#757575"));
     static QIcon createBoldIcon();
     static QIcon createSyncIcon(bool synced, bool enabled);
 
@@ -66,7 +68,7 @@ private:
     void adjustFontSize(int delta);
     void updateTitle();
     void convertPlainListToHtmlList();
-    static QIcon createFormatIcon();
+    static QIcon createFormatIcon(const QColor& color = QColor("#757575"));
 
     NoteModel m_model;
     
@@ -74,6 +76,7 @@ private:
     QWidget* m_headerWidget;
     QPushButton* m_menuButton;
     QLabel* m_titleLabel;
+    QPushButton* m_pinButton;
     QPushButton* m_plusButton;
     QPushButton* m_formatButton;
     QPushButton* m_colorBadgeButton;

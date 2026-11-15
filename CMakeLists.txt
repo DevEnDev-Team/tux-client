@@ -31,6 +31,8 @@ add_executable(tux-it
     src/syncqrcodedialog.cpp
     src/updatemanager.h
     src/updatemanager.cpp
+    src/autostartmanager.h
+    src/autostartmanager.cpp
     src/resources.qrc
 )
 

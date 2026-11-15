@@ -124,7 +124,7 @@ void NotesManager::start() {
                     NoteModel defaultNote;
                     defaultNote.id = generateUniqueId();
                     defaultNote.content = "Bienvenue dans vos notes Tux-It !\n\nDouble-cliquez pour éditer.\nFaites un clic droit pour changer la couleur.";
-                    defaultNote.color = "#FFF59D"; // Jaune par défaut
+                    defaultNote.color = "#FEF08A"; // Ambre 2026 par défaut
                     defaultNote.position = QPoint(150, 150);
                     defaultNote.size = QSize(250, 250);
                     defaultNote.alwaysOnTop = false;
@@ -233,7 +233,7 @@ void NotesManager::createDefaultNote() {
     NoteModel defaultNote;
     defaultNote.id = generateUniqueId();
     defaultNote.content = "Bienvenue dans vos notes Tux-It !\n\nDouble-cliquez pour éditer.\nFaites un clic droit pour changer la couleur.";
-    defaultNote.color = "#FFF59D"; // Jaune par défaut
+    defaultNote.color = "#FEF08A"; // Ambre 2026 par défaut
     defaultNote.position = QPoint(150, 150);
     defaultNote.size = QSize(250, 250);
     defaultNote.alwaysOnTop = false;
@@ -271,7 +271,7 @@ void NotesManager::onNewNoteRequested() {
     NoteModel newNote;
     newNote.id = generateUniqueId();
     newNote.content = "";
-    newNote.color = "#FFF59D"; // Yellow
+    newNote.color = "#FEF08A"; // Ambre 2026
     
     // Position cascade relative to active window or screen center
     QPoint spawnPos(100, 100);

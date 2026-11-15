@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tux-It - Maquette & Aperçu Refonte 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      /* Mode Sombre (Défaut) */
+      --bg: #0d0f12;
+      --surface: #16191f;
+      --surface-elevated: #1f232b;
+      --surface-hover: #262c36;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --accent-soft: rgba(56, 189, 248, 0.12);
+      --danger: #f43f5e;
+      --danger-soft: rgba(244, 63, 94, 0.12);
+      --success: #10b981;
+      
+      /* Ombres douces 2026 */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+      --shadow-lg: 0 16px 36px -6px rgba(0, 0, 0, 0.5);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    html.light {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-elevated: #f1f5f9;
+      --surface-hover: #e2e8f0;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-subtle: rgba(0, 0, 0, 0.04);
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: rgba(2, 132, 199, 0.1);
+      --danger: #e11d48;
+      --danger-soft: rgba(225, 29, 72, 0.1);
+      --success: #059669;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 8px 20px -4px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 16px 32px -6px rgba(0, 0, 0, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Top banner d'explication de la maquette */
+    .prototype-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+    }
+
+    .prototype-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .prototype-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 12px;
+      background: var(--surface-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-icon:hover {
+      background: var(--surface-hover);
+      border-color: var(--text-dim);
+    }
+
+    .btn-icon.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .svg-icon {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+
+    /* Fenêtre Qt Principale : Tux-It Dashboard */
+    .app-window {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 40px;
+    }
+
+    /* Barre de titre façon Desktop Linux moderne */
+    .window-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      user-select: none;
+    }
+
+    .window-title-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .app-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .app-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .window-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sync-status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* Barre d'outils et recherche */
+    .toolbar-area {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 20px;
+      background: var(--surface-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 38px;
+      padding: 0 14px 0 38px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 38px;
+      padding: 0 16px;
+      background: var(--accent);
+      color: #0b1320;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background: #7dd3fc;
+      transform: translateY(-1px);
+    }
+
+    /* Filtres par étiquette / couleur */
+    .filters-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--surface);
+      overflow-x: auto;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 999px;
+      background: var(--surface-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.12s ease;
+    }
+
+    .filter-chip:hover {
+      color: var(--text);
+      border-color: var(--text-dim);
+    }
+
+    .filter-chip.active {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+      font-weight: 600;
+    }
+
+    .color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Contenu : Grille des cartes 2026 */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      padding: 20px;
+      min-height: 380px;
+      align-content: start;
+    }
+
+    /* Mode Liste (Optionnel switch) */
+    .cards-grid.list-view {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Carte de Note 2026 */
+    .note-card {
+      position: relative;
+      border-radius: 14px;
+      padding: 16px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 150px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .note-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .list-view .note-card {
+      min-height: auto;
+      flex-direction: row;
+      align-items: center;
+      padding: 12px 16px;
+    }
+
+    /* Palette 2026 Neo-Pastel / Warm Notes */
+    .theme-butter {
+      background-color: #fef08a;
+      color: #713f12;
+      border-color: rgba(161, 98, 7, 0.2);
+    }
+    .theme-sage {
+      background-color: #bbf7d0;
+      color: #14532d;
+      border-color: rgba(22, 101, 52, 0.2);
+    }
+    .theme-sky {
+      background-color: #bae6fd;
+      color: #0c4a6e;
+      border-color: rgba(3, 105, 161, 0.2);
+    }
+    .theme-peach {
+      background-color: #fed7aa;
+      color: #7c2d12;
+      border-color: rgba(194, 65, 12, 0.2);
+    }
+    .theme-lavender {
+      background-color: #e9d5ff;
+      color: #3b1a54;
+      border-color: rgba(90, 30, 130, 0.2);
+    }
+    .theme-rose {
+      background-color: #fbcfe8;
+      color: #831843;
+      border-color: rgba(157, 23, 77, 0.2);
+    }
+    .theme-slate {
+      background-color: #e2e8f0;
+      color: #0f172a;
+      border-color: rgba(51, 65, 85, 0.2);
+    }
+
+    /* Mode Sombre des notes : teintes riches profondes */
+    html.dark .theme-butter {
+      background-color: #2e2614;
+      color: #fef08a;
+      border-color: rgba(254, 240, 138, 0.2);
+    }
+    html.dark .theme-sage {
+      background-color: #132b1d;
+      color: #bbf7d0;
+      border-color: rgba(187, 247, 208, 0.2);
+    }
+    html.dark .theme-sky {
+      background-color: #11293a;
+      color: #bae6fd;
+      border-color: rgba(186, 230, 253, 0.2);
+    }
+    html.dark .theme-peach {
+      background-color: #311e13;
+      color: #fed7aa;
+      border-color: rgba(254, 215, 170, 0.2);
+    }
+    html.dark .theme-lavender {
+      background-color: #27173a;
+      color: #e9d5ff;
+      border-color: rgba(233, 213, 255, 0.2);
+    }
+    html.dark .theme-rose {
+      background-color: #351424;
+      color: #fbcfe8;
+      border-color: rgba(251, 207, 232, 0.2);
+    }
+    html.dark .theme-slate {
+      background-color: #1e2530;
+      color: #f1f5f9;
+      border-color: rgba(241, 245, 249, 0.15);
+    }
+
+    .note-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .list-view .note-card-header {
+      margin-bottom: 0;
+      min-width: 220px;
+    }
+
+    .note-title {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+    }
+
+    .note-snippet {
+      font-size: 12.5px;
+      opacity: 0.85;
+      line-height: 1.45;
+      margin-bottom: 16px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .list-view .note-snippet {
+      margin-bottom: 0;
+      flex: 1;
+      -webkit-line-clamp: 1;
+      padding: 0 16px;
+    }
+
+    .note-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      opacity: 0.75;
+      font-family: var(--font-mono);
+    }
+
+    .list-view .note-meta {
+      gap: 16px;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .note-card:hover .card-actions {
+      opacity: 1;
+    }
+
+    .card-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.08);
+      color: inherit;
+      border: none;
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+
+    html.dark .card-btn {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .card-btn:hover {
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    html.dark .card-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Section Sticky Note Preview (La note flottante elle-même) */
+    .preview-section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sticky-preview-wrapper {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .sticky-window-mockup {
+      width: 320px;
+      min-height: 240px;
+      border-radius: 14px;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .sticky-header-bar {
+      height: 36px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      user-select: none;
+      cursor: grab;
+    }
+
+    .sticky-tools {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sticky-body-content {
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      flex: 1;
+      outline: none;
+    }
+
+    .sticky-checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+    }
+
+    .custom-checkbox {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1.8px solid currentColor;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .custom-checkbox.checked {
+      background: currentColor;
+    }
+
+    .custom-checkbox.checked svg {
+      stroke: var(--bg);
+    }
+
+    /* Tableau comparatif des couleurs 2014 vs 2026 */
+    .color-compare-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 40px;
+    }
+
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .palette-sample {
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-elevated);
+    }
+
+    .color-swatches {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .swatch {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .color-label-title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .color-label-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Barre du Prototype -->
+  <div class="prototype-bar">
+    <div class="prototype-info">
+      <span class="badge-pill">MAQUETTE VALIDATION 2026</span>
+      <span style="font-size: 13px; font-weight: 600;">Refonte Visuelle Tux-It (Qt 6 C++)</span>
+    </div>
+    <div class="prototype-actions">
+      <button class="btn-icon" id="toggleThemeBtn" onclick="toggleTheme()">
+        <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <span id="themeBtnText">Thème Clair</span>
+      </button>
+
+      <button class="btn-icon active" id="viewGridBtn" onclick="setView('grid')">
+        <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <span>Grille</span>
+      </button>
+
+      <button class="btn-icon" id="viewListBtn" onclick="setView('list')">
+        <svg class="svg-icon" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        <span>Liste</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 1. APERÇU DE LA NOUVELLE FENÊTRE DU DASHBOARD (NotesListWindow) -->
+  <div class="app-window">
+    
+    <!-- Header fenêtre -->
+    <div class="window-header">
+      <div class="window-title-area">
+        <div class="app-logo">
+          <!-- Icône stylisée Tux / Note vectorielle -->
+          <svg class="svg-icon" style="stroke: #ffffff;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </div>
+        <div>
+          <div class="app-title">Tux-It Workspace</div>
+          <div class="app-subtitle">8 notes sauvegardées · Synchronisé</div>
+        </div>
+      </div>
+
+      <div class="window-controls">
+        <div class="sync-status-chip">
+          <span class="status-dot"></span>
+          <span>En ligne</span>
+        </div>
+
+        <button class="btn-icon active" id="mockupAutostartBtn" title="Démarrage automatique : Activé (Cliquer pour basculer)" onclick="toggleMockupAutostart(this)">
+          <svg class="svg-icon" id="mockupAutostartSvg" style="stroke: #10b981;" viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+        </button>
+
+        <button class="btn-icon" title="Synchroniser avec le mobile (QR Code)">
+          <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><path d="M14 14h3v3h-3z"></path><path d="M20 14v3"></path><path d="M14 20h3"></path><path d="M20 20v.01"></path></svg>
+        </button>
+
+        <button class="btn-icon" title="Vérifier les mises à jour">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Barre d'outils (Recherche + Nouveau Note) -->
+    <div class="toolbar-area">
+      <div class="search-box">
+        <svg class="svg-icon search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" class="search-input" placeholder="Rechercher une note, un mot-clé ou un tag... (Ctrl+F)">
+      </div>
+
+      <div class="toolbar-actions">
+        <button class="btn-primary">
+          <svg class="svg-icon" style="stroke: #0b1320; stroke-width: 2.2;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>Nouvelle Note</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtres par catégorie / couleur -->
+    <div class="filters-bar">
+      <div class="filter-chip active">Toutes (8)</div>
+      <div class="filter-chip"><span class="color-dot" style="background:#fef08a;"></span> Ambre</div>
+      <div class="filter-chip"><span class="color-dot" style="background:#bbf7d0;"></span> Sauge</div>
+      <div class="filter-chip"><span class="color-dot" style="background:#bae6fd;"></span> Azur</div>
+      <div class="filter-chip"><span class="color-dot" style="background:#fed7aa;"></span> Pêche</div>
+      <div class="filter-chip"><span class="color-dot" style="background:#e9d5ff;"></span> Lavande</div>
+      <div class="filter-chip"><span class="color-dot" style="background:#fbcfe8;"></span> Rose</div>
+      <div class="filter-chip"><span class="color-dot" style="background:#94a3b8;"></span> Ardoise</div>
+    </div>
+
+    <!-- Grille de Cartes Modernes -->
+    <div class="cards-grid" id="cardsGrid">
+      
+      <!-- Carte 1 -->
+      <div class="note-card theme-butter">
+        <div class="note-card-header">
+          <div class="note-title">Idées Release Tux-It v2.0</div>
+          <div class="card-actions">
+            <button class="card-btn" title="Épingler"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg></button>
+            <button class="card-btn" title="Ouvrir la note"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></button>
+            <button class="card-btn" title="Supprimer"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+          </div>
+        </div>
+        <div class="note-snippet">
+          Refonte complète du design système avec support natif des thèmes 2026, transition fluide des fenêtres, et intégration des icônes SVG légères.
+        </div>
+        <div class="note-meta">
+          <span>Modifié il y a 10 min</span>
+          <span>#roadmap #v2</span>
+        </div>
+      </div>
+
+      <!-- Carte 2 -->
+      <div class="note-card theme-sky">
+        <div class="note-card-header">
+          <div class="note-title">Configuration Serveur Local</div>
+          <div class="card-actions">
+            <button class="card-btn" title="Épingler"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg></button>
+            <button class="card-btn" title="Ouvrir la note"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></button>
+            <button class="card-btn" title="Supprimer"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+          </div>
+        </div>
+        <div class="note-snippet">
+          docker-compose up -d sur le port 8080. Clé d'API générée dans le dashboard admin. Vérifier les certificats TLS et la sync WebSocket.
+        </div>
+        <div class="note-meta">
+          <span>Aujourd'hui 08:42</span>
+          <span>#dev #docker</span>
+        </div>
+      </div>
+
+      <!-- Carte 3 -->
+      <div class="note-card theme-sage">
+        <div class="note-card-header">
+          <div class="note-title">To-Do Semaine 46</div>
+          <div class="card-actions">
+            <button class="card-btn" title="Épingler"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg></button>
+            <button class="card-btn" title="Ouvrir la note"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></button>
+            <button class="card-btn" title="Supprimer"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+          </div>
+        </div>
+        <div class="note-snippet">
+          [x] Valider les nouvelles palettes de couleurs<br>
+          [ ] Refaire le layout Qt NoteCardWidget<br>
+          [ ] Ajouter raccourci Ctrl+K de recherche
+        </div>
+        <div class="note-meta">
+          <span>Hier 19:15</span>
+          <span>#tasks</span>
+        </div>
+      </div>
+
+      <!-- Carte 4 -->
+      <div class="note-card theme-peach">
+        <div class="note-card-header">
+          <div class="note-title">Notes de Réunion Design</div>
+          <div class="card-actions">
+            <button class="card-btn" title="Épingler"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg></button>
+            <button class="card-btn" title="Ouvrir la note"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></button>
+            <button class="card-btn" title="Supprimer"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+          </div>
+        </div>
+        <div class="note-snippet">
+          Abandonner les anciens dégradés Material v1. Les fenêtres doivent avoir des bords de 14px, des polices lisibles et zéro emoji.
+        </div>
+        <div class="note-meta">
+          <span>12 nov. 14:00</span>
+          <span>#design</span>
+        </div>
+      </div>
+
+      <!-- Carte 5 -->
+      <div class="note-card theme-lavender">
+        <div class="note-card-header">
+          <div class="note-title">Snippets C++ Qt 6</div>
+          <div class="card-actions">
+            <button class="card-btn" title="Épingler"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg></button>
+            <button class="card-btn" title="Ouvrir la note"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></button>
+            <button class="card-btn" title="Supprimer"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+          </div>
+        </div>
+        <div class="note-snippet">
+          Utiliser QGraphicsDropShadowEffect avec un décalage vertical subtil et un rayon de flou de 12px pour un effet flottant doux.
+        </div>
+        <div class="note-meta">
+          <span>09 nov. 11:20</span>
+          <span>#code</span>
+        </div>
+      </div>
+
+      <!-- Carte 6 -->
+      <div class="note-card theme-slate">
+        <div class="note-card-header">
+          <div class="note-title">Aide-Mémoire Raccourcis</div>
+          <div class="card-actions">
+            <button class="card-btn" title="Épingler"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg></button>
+            <button class="card-btn" title="Ouvrir la note"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></button>
+            <button class="card-btn" title="Supprimer"><svg class="svg-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+          </div>
+        </div>
+        <div class="note-snippet">
+          Ctrl+N : Nouvelle note · Ctrl+F : Recherche globale · Ctrl+L : Verrouiller · Ctrl+Shift+P : Épingler au premier plan
+        </div>
+        <div class="note-meta">
+          <span>04 nov. 09:12</span>
+          <span>#shortcuts</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. APERÇU DU POST-IT FLOTTANT MODERNE (StickyWindow) -->
+  <div class="preview-section-title">
+    <svg class="svg-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+    <span>Aperçu de la Note Flottante (Sticky Window 2026)</span>
+  </div>
+
+  <div class="sticky-preview-wrapper">
+    <!-- Exemple 1 : Note Ambre/Jaune -->
+    <div class="sticky-window-mockup theme-butter">
+      <div class="sticky-header-bar">
+        <span style="font-size: 11px; font-weight: 700; opacity: 0.7;">TUX-IT</span>
+        <div class="sticky-tools">
+          <button class="card-btn" title="Toujours au premier plan"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg></button>
+          <button class="card-btn" title="Changer couleur"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="m4.93 4.93 4.24 4.24"></path><path d="m14.83 9.17 4.24-4.24"></path><path d="m14.83 14.83 4.24 4.24"></path><path d="m9.17 14.83-4.24 4.24"></path></svg></button>
+          <button class="card-btn" title="Fermer"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+      </div>
+      <div class="sticky-body-content">
+        <div style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">Sprint de développement</div>
+        <p style="margin-bottom: 8px; opacity: 0.9;">Voici la liste des tâches prioritaires pour le lancement :</p>
+        <div class="sticky-checklist-item">
+          <div class="custom-checkbox checked"><svg class="svg-icon" style="width:12px;height:12px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+          <span>Intégrer les tokens CSS Qt modernes</span>
+        </div>
+        <div class="sticky-checklist-item">
+          <div class="custom-checkbox checked"><svg class="svg-icon" style="width:12px;height:12px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+          <span>Refactoriser NoteCardWidget</span>
+        </div>
+        <div class="sticky-checklist-item">
+          <div class="custom-checkbox"></div>
+          <span>Tester sur écran HiDPI 4K</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exemple 2 : Note Sauge/Verte -->
+    <div class="sticky-window-mockup theme-sage">
+      <div class="sticky-header-bar">
+        <span style="font-size: 11px; font-weight: 700; opacity: 0.7;">TUX-IT</span>
+        <div class="sticky-tools">
+          <button class="card-btn" title="Toujours au premier plan"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"></path></svg></button>
+          <button class="card-btn" title="Changer couleur"><svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg></button>
+          <button class="card-btn" title="Fermer"><svg class="svg-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+      </div>
+      <div class="sticky-body-content">
+        <div style="font-weight: 700; font-size: 15px; margin-bottom: 8px;">Idée architecture</div>
+        <p style="opacity: 0.9;">Remplacer les vieilles QListWidget rigides par un layout fluide avec cartes adaptatives et raccourcis dynamiques.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. COMPARATIF DES PALETTES DE COULEURS -->
+  <div class="color-compare-card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <h3 style="font-size: 15px; font-weight: 700;">Palette de Couleurs : Ancien 2014 vs Nouveau 2026</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+          Les nouvelles couleurs éliminent l'aspect délavé et apportent une lisibilité optimale en mode clair et en mode sombre nocturne.
+        </p>
+      </div>
+    </div>
+
+    <div class="palette-grid">
+      <!-- Jaune / Ambre -->
+      <div class="palette-sample">
+        <div class="color-label-title">Jaune / Ambre</div>
+        <div class="color-swatches">
+          <div class="swatch" style="background:#FFF59D; color:#212121;">2014<br>#FFF59D</div>
+          <span style="color:var(--text-dim); font-size:12px;">→</span>
+          <div class="swatch" style="background:#fef08a; color:#713f12;">2026<br>#FEF08A</div>
+        </div>
+        <div class="color-label-desc">Plus chaud, meilleur contraste textuel.</div>
+      </div>
+
+      <!-- Bleu / Azur -->
+      <div class="palette-sample">
+        <div class="color-label-title">Bleu / Azur</div>
+        <div class="color-swatches">
+          <div class="swatch" style="background:#90CAF9; color:#212121;">2014<br>#90CAF9</div>
+          <span style="color:var(--text-dim); font-size:12px;">→</span>
+          <div class="swatch" style="background:#bae6fd; color:#0c4a6e;">2026<br>#BAE6FD</div>
+        </div>
+        <div class="color-label-desc">Teinte polaire moderne, texturé et net.</div>
+      </div>
+
+      <!-- Vert / Sauge -->
+      <div class="palette-sample">
+        <div class="color-label-title">Vert / Sauge</div>
+        <div class="color-swatches">
+          <div class="swatch" style="background:#A5D6A7; color:#212121;">2014<br>#A5D6A7</div>
+          <span style="color:var(--text-dim); font-size:12px;">→</span>
+          <div class="swatch" style="background:#bbf7d0; color:#14532d;">2026<br>#BBF7D0</div>
+        </div>
+        <div class="color-label-desc">Nuance matcha/sauge reposante pour les yeux.</div>
+      </div>
+
+      <!-- Orange / Pêche -->
+      <div class="palette-sample">
+        <div class="color-label-title">Orange / Pêche</div>
+        <div class="color-swatches">
+          <div class="swatch" style="background:#FFCC80; color:#212121;">2014<br>#FFCC80</div>
+          <span style="color:var(--text-dim); font-size:12px;">→</span>
+          <div class="swatch" style="background:#fed7aa; color:#7c2d12;">2026<br>#FED7AA</div>
+        </div>
+        <div class="color-label-desc">Teinte terracotta / pêche douce.</div>
+      </div>
+
+      <!-- Violet / Lavande -->
+      <div class="palette-sample">
+        <div class="color-label-title">Violet / Lavande</div>
+        <div class="color-swatches">
+          <div class="swatch" style="background:#CE93D8; color:#212121;">2014<br>#CE93D8</div>
+          <span style="color:var(--text-dim); font-size:12px;">→</span>
+          <div class="swatch" style="background:#e9d5ff; color:#3b1a54;">2026<br>#E9D5FF</div>
+        </div>
+        <div class="color-label-desc">Iris feutré, sans agressivité violette.</div>
+      </div>
+
+      <!-- Rose / Poudré -->
+      <div class="palette-sample">
+        <div class="color-label-title">Rose / Poudré</div>
+        <div class="color-swatches">
+          <div class="swatch" style="background:#F8BBD0; color:#212121;">2014<br>#F8BBD0</div>
+          <span style="color:var(--text-dim); font-size:12px;">→</span>
+          <div class="swatch" style="background:#fbcfe8; color:#831843;">2026<br>#FBCFE8</div>
+        </div>
+        <div class="color-label-desc">Rose poudré équilibré.</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const btnText = document.getElementById('themeBtnText');
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      html.classList.add('light');
+      btnText.textContent = 'Thème Sombre';
+    } else {
+      html.classList.remove('light');
+      html.classList.add('dark');
+      btnText.textContent = 'Thème Clair';
+    }
+  }
+
+  function setView(view) {
+    const grid = document.getElementById('cardsGrid');
+    const gridBtn = document.getElementById('viewGridBtn');
+    const listBtn = document.getElementById('viewListBtn');
+    if (view === 'list') {
+      grid.classList.add('list-view');
+      listBtn.classList.add('active');
+      gridBtn.classList.remove('active');
+    } else {
+      grid.classList.remove('list-view');
+      gridBtn.classList.add('active');
+      listBtn.classList.remove('active');
+    }
+  }
+
+  function toggleMockupAutostart(btn) {
+    const svg = document.getElementById('mockupAutostartSvg');
+    const isActive = btn.classList.toggle('active');
+    if (isActive) {
+      svg.style.stroke = '#10b981';
+      btn.title = 'Démarrage automatique : Activé (Cliquer pour basculer)';
+    } else {
+      svg.style.stroke = 'var(--text-muted)';
+      btn.title = 'Démarrage automatique : Désactivé (Cliquer pour basculer)';
+    }
+  }
+</script>
+
+</body>
+</html>

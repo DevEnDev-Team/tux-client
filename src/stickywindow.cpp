@@ -1,4 +1,5 @@
 #include "stickywindow.h"
+#include "autostartmanager.h"
 #include <QMouseEvent>
 #include <QMenu>
 #include <QColorDialog>
@@ -13,6 +14,7 @@
 #include <QWindow>
 #include <QStyleOption>
 #include <QPainter>
+#include <QPainterPath>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QStandardPaths>
@@ -39,11 +41,11 @@ StickyWindow::StickyWindow(NoteModel model, QWidget *parent)
 
     connect(m_textEdit, &QTextEdit::textChanged, this, &StickyWindow::onContentChanged);
 
-    // Apply shadow if borderless
+    // Apply shadow if borderless (effet physique doux 2026)
     QGraphicsDropShadowEffect* shadow = new QGraphicsDropShadowEffect(this);
-    shadow->setBlurRadius(15);
-    shadow->setColor(QColor(0, 0, 0, 80));
-    shadow->setOffset(0, 4);
+    shadow->setBlurRadius(24);
+    shadow->setColor(QColor(0, 0, 0, 50));
+    shadow->setOffset(0, 6);
     setGraphicsEffect(shadow);
 }
 
@@ -62,71 +64,68 @@ void StickyWindow::setupUi() {
     mainLayout->setContentsMargins(1, 1, 1, 1);
     mainLayout->setSpacing(0);
 
-    // Header layout
+    // Header layout moderne (36px de hauteur)
     m_headerWidget = new QWidget(this);
     m_headerWidget->setObjectName("headerWidget");
-    m_headerWidget->setFixedHeight(32);
+    m_headerWidget->setFixedHeight(36);
     QHBoxLayout* headerLayout = new QHBoxLayout(m_headerWidget);
-    headerLayout->setContentsMargins(8, 0, 8, 0);
+    headerLayout->setContentsMargins(10, 0, 10, 0);
     headerLayout->setSpacing(4);
     headerLayout->setAlignment(Qt::AlignVCenter);
 
     m_menuButton = new QPushButton(m_headerWidget);
     m_menuButton->setIcon(createPenguinIcon());
-    m_menuButton->setIconSize(QSize(20, 20));
+    m_menuButton->setIconSize(QSize(16, 16));
     m_menuButton->setCursor(Qt::PointingHandCursor);
     m_menuButton->setFixedSize(26, 26);
-    m_menuButton->setFlat(true);
+    m_menuButton->setToolTip("Menu principal Tux-It");
 
-    m_titleLabel = new QLabel(m_model.tags.isEmpty() ? "Tux-It" : m_model.tags.join(", "), m_headerWidget);
-    m_titleLabel->setStyleSheet("font-weight: bold; font-size: 13px;");
+    m_titleLabel = new QLabel(m_model.tags.isEmpty() ? "TUX-IT" : m_model.tags.join(", "), m_headerWidget);
+    m_titleLabel->setStyleSheet("font-weight: 700; font-size: 11px; letter-spacing: 0.5px; opacity: 0.75;");
 
-    m_plusButton = new QPushButton(m_headerWidget);
-    m_plusButton->setIconSize(QSize(20, 20));
-    m_plusButton->setCursor(Qt::PointingHandCursor);
-    m_plusButton->setFixedSize(26, 26);
-    m_plusButton->setFlat(true);
-
-    m_formatButton = new QPushButton(m_headerWidget);
-    m_formatButton->setIconSize(QSize(20, 20));
-    m_formatButton->setCursor(Qt::PointingHandCursor);
-    m_formatButton->setFixedSize(26, 26);
-    m_formatButton->setFlat(true);
-    m_formatButton->setToolTip("Formatage du texte");
+    m_pinButton = new QPushButton(m_headerWidget);
+    m_pinButton->setCursor(Qt::PointingHandCursor);
+    m_pinButton->setFixedSize(26, 26);
+    m_pinButton->setToolTip(m_model.alwaysOnTop ? "Désépingler du premier plan" : "Toujours au premier plan");
 
     m_colorBadgeButton = new QPushButton(m_headerWidget);
-    m_colorBadgeButton->setIconSize(QSize(20, 20));
     m_colorBadgeButton->setCursor(Qt::PointingHandCursor);
     m_colorBadgeButton->setFixedSize(26, 26);
-    m_colorBadgeButton->setFlat(true);
+    m_colorBadgeButton->setToolTip("Changer de couleur");
+
+    m_plusButton = new QPushButton(m_headerWidget);
+    m_plusButton->setCursor(Qt::PointingHandCursor);
+    m_plusButton->setFixedSize(26, 26);
+    m_plusButton->setToolTip("Nouvelle note (Ctrl+N)");
+
+    m_formatButton = new QPushButton(m_headerWidget);
+    m_formatButton->setCursor(Qt::PointingHandCursor);
+    m_formatButton->setFixedSize(26, 26);
+    m_formatButton->setToolTip("Formatage du texte");
 
     m_lockButton = new QPushButton(m_headerWidget);
-    m_lockButton->setIconSize(QSize(14, 14));
     m_lockButton->setCursor(Qt::PointingHandCursor);
     m_lockButton->setFixedSize(26, 26);
-    m_lockButton->setFlat(true);
+    m_lockButton->setToolTip(m_model.locked ? "Déverrouiller" : "Verrouiller");
 
     m_syncButton = new QPushButton(m_headerWidget);
-    m_syncButton->setIconSize(QSize(20, 20));
     m_syncButton->setCursor(Qt::ArrowCursor);
     m_syncButton->setFixedSize(26, 26);
-    m_syncButton->setFlat(true);
 
     m_closeButton = new QPushButton(m_headerWidget);
-    m_closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
-    m_closeButton->setIconSize(QSize(16, 16));
     m_closeButton->setCursor(Qt::PointingHandCursor);
     m_closeButton->setFixedSize(26, 26);
-    m_closeButton->setFlat(true);
+    m_closeButton->setToolTip("Fermer / Supprimer");
 
     headerLayout->addWidget(m_menuButton, 0, Qt::AlignVCenter);
     headerLayout->addWidget(m_titleLabel, 0, Qt::AlignVCenter);
     headerLayout->addStretch();
+    headerLayout->addWidget(m_pinButton, 0, Qt::AlignVCenter);
+    headerLayout->addWidget(m_colorBadgeButton, 0, Qt::AlignVCenter);
     headerLayout->addWidget(m_plusButton, 0, Qt::AlignVCenter);
     headerLayout->addWidget(m_formatButton, 0, Qt::AlignVCenter);
-    headerLayout->addWidget(m_colorBadgeButton, 0, Qt::AlignVCenter);
-    headerLayout->addWidget(m_syncButton, 0, Qt::AlignVCenter);
     headerLayout->addWidget(m_lockButton, 0, Qt::AlignVCenter);
+    headerLayout->addWidget(m_syncButton, 0, Qt::AlignVCenter);
     headerLayout->addWidget(m_closeButton, 0, Qt::AlignVCenter);
 
     // Text Editor
@@ -155,6 +154,7 @@ void StickyWindow::setupUi() {
     setMouseTracking(true);
 
     // Connections
+    connect(m_pinButton, &QPushButton::clicked, this, &StickyWindow::toggleAlwaysOnTop);
     connect(m_closeButton, &QPushButton::clicked, this, &StickyWindow::deleteNote);
     connect(m_lockButton, &QPushButton::clicked, this, &StickyWindow::toggleLocked);
     connect(m_plusButton, &QPushButton::clicked, this, &StickyWindow::newNoteRequested);
@@ -218,14 +218,14 @@ void StickyWindow::setupUi() {
             "QMenu::separator { height: 1px; background: palette(mid); margin: 4px 0; }"
         );
 
-        colorMenu.addAction("Jaune")->setData("#FFF59D");
-        colorMenu.addAction("Bleu")->setData("#90CAF9");
-        colorMenu.addAction("Vert")->setData("#A5D6A7");
-        colorMenu.addAction("Rose")->setData("#F8BBD0");
-        colorMenu.addAction("Orange")->setData("#FFCC80");
-        colorMenu.addAction("Violet")->setData("#CE93D8");
-        colorMenu.addAction("Gris")->setData("#E0E0E0");
-        colorMenu.addAction("Blanc")->setData("#FAFAFA");
+        colorMenu.addAction("Ambre")->setData("#FEF08A");
+        colorMenu.addAction("Azur")->setData("#BAE6FD");
+        colorMenu.addAction("Sauge")->setData("#BBF7D0");
+        colorMenu.addAction("Pêche")->setData("#FED7AA");
+        colorMenu.addAction("Lavande")->setData("#E9D5FF");
+        colorMenu.addAction("Rose")->setData("#FBCFE8");
+        colorMenu.addAction("Ardoise")->setData("#E2E8F0");
+        colorMenu.addAction("Blanc")->setData("#F8FAFC");
         colorMenu.addAction("Personnalisée...");
 
         QPoint spawnPos = m_colorBadgeButton->mapToGlobal(QPoint(0, m_colorBadgeButton->height()));
@@ -267,25 +267,60 @@ void StickyWindow::updateAppearance() {
     m_model.opacity = 1.0;
     setWindowOpacity(1.0);
 
+    m_model.color = normalizeNoteColor(m_model.color);
     QColor bgColor(m_model.color);
     QColor fgColor = getContrastColor(bgColor);
 
-    // Colors & Stylesheets
+    // Colors & Stylesheets 2026 (Style .card-btn de la maquette avec petit carré visible)
+    bool isDarkFg = (fgColor.lightness() < 128);
+    QString btnBg = isDarkFg ? "rgba(0, 0, 0, 0.08)" : "rgba(255, 255, 255, 0.14)";
+    QString btnHover = isDarkFg ? "rgba(0, 0, 0, 0.16)" : "rgba(255, 255, 255, 0.24)";
+    QString btnPressed = isDarkFg ? "rgba(0, 0, 0, 0.24)" : "rgba(255, 255, 255, 0.34)";
+    QString btnBorder = isDarkFg ? "1px solid rgba(0, 0, 0, 0.05)" : "1px solid rgba(255, 255, 255, 0.10)";
+
     QString style = QString(
-        "StickyWindow { background-color: %1; border-radius: 12px; }"
-        "QWidget#headerWidget { background-color: transparent; }"
-        "QPushButton { border: none; background: transparent; color: %2; font-size: 14px; }"
-        "QPushButton::hover { background-color: rgba(0, 0, 0, 0.1); border-radius: 4px; }"
-        "QTextEdit { background-color: transparent; border: none; font-size: %3px; color: %2; }"
-    ).arg(bgColor.name(), fgColor.name()).arg(m_currentFontSize);
+        "StickyWindow { background: transparent; }"
+        "QWidget#headerWidget { background: transparent; border-bottom: 1px solid rgba(0, 0, 0, 0.06); }"
+        "QWidget#headerWidget QPushButton {"
+        "    border: %3;"
+        "    background-color: %4;"
+        "    color: %1;"
+        "    border-radius: 6px;"
+        "    padding: 0px;"
+        "    min-width: 26px;"
+        "    max-width: 26px;"
+        "    min-height: 26px;"
+        "    max-height: 26px;"
+        "}"
+        "QWidget#headerWidget QPushButton:hover {"
+        "    background-color: %5;"
+        "}"
+        "QWidget#headerWidget QPushButton:pressed {"
+        "    background-color: %6;"
+        "}"
+        "QTextEdit { background: transparent; border: none; font-size: %2px; color: %1; padding: 8px 12px; }"
+    ).arg(fgColor.name())
+     .arg(m_currentFontSize)
+     .arg(btnBorder)
+     .arg(btnBg)
+     .arg(btnHover)
+     .arg(btnPressed);
 
     setStyleSheet(style);
 
-    m_titleLabel->setStyleSheet(QString("font-weight: bold; font-size: 13px; color: %1;").arg(fgColor.name()));
-    m_plusButton->setIcon(createPlusIcon());
-    m_formatButton->setIcon(createFormatIcon());
-    m_colorBadgeButton->setIcon(createColorBadgeIcon(m_model.color));
-    m_lockButton->setIcon(createLockIcon(m_model.locked));
+    m_titleLabel->setStyleSheet(QString("font-weight: 700; font-size: 11px; letter-spacing: 0.5px; color: %1; opacity: 0.75;").arg(fgColor.name()));
+    m_pinButton->setIcon(createPinIcon(m_model.alwaysOnTop, fgColor));
+    m_pinButton->setIconSize(QSize(16, 16));
+    m_closeButton->setIcon(createCloseIcon(fgColor));
+    m_closeButton->setIconSize(QSize(16, 16));
+    m_colorBadgeButton->setIcon(createColorBadgeIcon(m_model.color, fgColor));
+    m_colorBadgeButton->setIconSize(QSize(16, 16));
+    m_plusButton->setIcon(createPlusIcon(fgColor));
+    m_plusButton->setIconSize(QSize(16, 16));
+    m_formatButton->setIcon(createFormatIcon(fgColor));
+    m_formatButton->setIconSize(QSize(16, 16));
+    m_lockButton->setIcon(createLockIcon(m_model.locked, fgColor));
+    m_lockButton->setIconSize(QSize(16, 16));
 
     // Détecter si la synchro est configurée localement en lisant la config
     QString configDir = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
@@ -303,6 +338,7 @@ void StickyWindow::updateAppearance() {
     m_syncButton->setVisible(syncConfigured); // Cacher si non configurée
     if (syncConfigured) {
         m_syncButton->setIcon(createSyncIcon(m_model.synced, true));
+        m_syncButton->setIconSize(QSize(16, 16));
         m_syncButton->setToolTip(m_model.synced ? "Note synchronisée en ligne" : "Modifications locales non synchronisées");
     }
     m_textEdit->setReadOnly(m_model.locked);
@@ -439,14 +475,14 @@ void StickyWindow::showContextMenu(const QPoint& pos) {
 
 
     QMenu* colorMenu = menu.addMenu("Changer couleur");
-    colorMenu->addAction("Jaune")->setData("#FFF59D");
-    colorMenu->addAction("Bleu")->setData("#90CAF9");
-    colorMenu->addAction("Vert")->setData("#A5D6A7");
-    colorMenu->addAction("Rose")->setData("#F8BBD0");
-    colorMenu->addAction("Orange")->setData("#FFCC80");
-    colorMenu->addAction("Violet")->setData("#CE93D8");
-    colorMenu->addAction("Gris")->setData("#E0E0E0");
-    colorMenu->addAction("Blanc")->setData("#FAFAFA");
+    colorMenu->addAction("Ambre")->setData("#FEF08A");
+    colorMenu->addAction("Azur")->setData("#BAE6FD");
+    colorMenu->addAction("Sauge")->setData("#BBF7D0");
+    colorMenu->addAction("Pêche")->setData("#FED7AA");
+    colorMenu->addAction("Lavande")->setData("#E9D5FF");
+    colorMenu->addAction("Rose")->setData("#FBCFE8");
+    colorMenu->addAction("Ardoise")->setData("#E2E8F0");
+    colorMenu->addAction("Blanc")->setData("#F8FAFC");
     colorMenu->addAction("Personnalisée...");
 
     QAction* actionPin = menu.addAction("Toujours devant");
@@ -457,7 +493,7 @@ void StickyWindow::showContextMenu(const QPoint& pos) {
     actionLock->setCheckable(true);
     actionLock->setChecked(m_model.locked);
 
-    bool autostartEnabled = QFile::exists(QDir::homePath() + "/.config/autostart/tux-it.desktop");
+    bool autostartEnabled = AutostartManager::isEnabled();
     QAction* actionAutostart = menu.addAction("Lancer au démarrage");
     actionAutostart->setCheckable(true);
     actionAutostart->setChecked(autostartEnabled);
@@ -910,122 +946,185 @@ bool StickyWindow::eventFilter(QObject *watched, QEvent *event) {
 }
 
 void StickyWindow::paintEvent(QPaintEvent *event) {
-    QStyleOption opt;
-    opt.initFrom(this);
+    Q_UNUSED(event);
     QPainter p(this);
-    style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
-    
+    p.setRenderHint(QPainter::Antialiasing, true);
+
+    // Dessin précis de la note flottante avec coins arrondis et bordure douce
+    QColor bgColor(normalizeNoteColor(m_model.color));
+    p.setBrush(bgColor);
+    p.setPen(QPen(QColor(0, 0, 0, 25), 1.2));
+    p.drawRoundedRect(rect().adjusted(1, 1, -1, -1), 14, 14);
+
     // Dessiner une poignée de redimensionnement discrète dans le coin inférieur droit
     if (!m_model.locked) {
-        p.setRenderHint(QPainter::Antialiasing);
-        QColor handleColor = getContrastColor(QColor(m_model.color));
-        handleColor.setAlpha(60); // Translucide et subtil
-        p.setPen(QPen(handleColor, 1.5, Qt::SolidLine, Qt::RoundCap));
+        QColor handleColor = getContrastColor(bgColor);
+        handleColor.setAlpha(60);
+        p.setPen(QPen(handleColor, 1.8, Qt::SolidLine, Qt::RoundCap));
 
         int w = width();
         int h = height();
-        // Dessiner trois petites lignes diagonales
-        p.drawLine(w - 12, h - 4, w - 4, h - 12);
-        p.drawLine(w - 8, h - 4, w - 4, h - 8);
-        p.drawLine(w - 16, h - 4, w - 4, h - 16);
+        p.drawLine(w - 14, h - 5, w - 5, h - 14);
+        p.drawLine(w - 9, h - 5, w - 5, h - 9);
     }
-
-    QWidget::paintEvent(event);
 }
 
 QIcon StickyWindow::createPenguinIcon() {
     return QIcon(":/logo.png");
 }
 
-QIcon StickyWindow::createLockIcon(bool locked) {
-    QPixmap pixmap(32, 32);
+QIcon StickyWindow::createPinIcon(bool pinned, const QColor& color) {
+    QPixmap pixmap(24, 24);
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
-    QColor bodyColor("#757575");
-    QColor shackleColor("#9E9E9E");
+    QPen pen(color, 1.8, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    painter.setPen(pen);
 
-    // Dessiner l'anse (shackle)
-    painter.setPen(QPen(shackleColor, 2.5, Qt::SolidLine, Qt::RoundCap));
-    painter.setBrush(Qt::NoBrush);
-    
+    // Needle (Aiguille du bas)
+    painter.drawLine(QPointF(12.0, 16.5), QPointF(12.0, 21.5));
+
+    // Lucide Pushpin Path
+    QPainterPath body;
+    body.moveTo(5.5, 16.5);
+    body.lineTo(18.5, 16.5);
+    body.lineTo(18.5, 15.0);
+    body.lineTo(15.0, 11.0);
+    body.lineTo(15.0, 6.5);
+    body.lineTo(16.5, 6.5);
+    body.lineTo(16.5, 3.5);
+    body.lineTo(7.5, 3.5);
+    body.lineTo(7.5, 6.5);
+    body.lineTo(9.0, 6.5);
+    body.lineTo(9.0, 11.0);
+    body.lineTo(5.5, 15.0);
+    body.closeSubpath();
+
+    if (pinned) {
+        painter.fillPath(body, color);
+    }
+    painter.drawPath(body);
+
+    painter.end();
+    return QIcon(pixmap);
+}
+
+QIcon StickyWindow::createCloseIcon(const QColor& color) {
+    QPixmap pixmap(24, 24);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+
+    QPen pen(color, 1.8, Qt::SolidLine, Qt::RoundCap);
+    painter.setPen(pen);
+    painter.drawLine(QPointF(7.0, 7.0), QPointF(17.0, 17.0));
+    painter.drawLine(QPointF(17.0, 7.0), QPointF(7.0, 17.0));
+
+    painter.end();
+    return QIcon(pixmap);
+}
+
+QIcon StickyWindow::createLockIcon(bool locked, const QColor& color) {
+    QPixmap pixmap(24, 24);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+
+    QPen pen(color, 1.8, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    painter.setPen(pen);
+
+    // Corps du cadenas (Lucide Lock)
+    QRectF bodyRect(5.5, 10.5, 13.0, 9.5);
     if (locked) {
-        // Anse fermée : un arc
-        painter.drawArc(8, 6, 16, 16, 0, 180 * 16);
-        // Lignes verticales qui descendent dans le corps
-        painter.drawLine(8, 14, 8, 18);
-        painter.drawLine(24, 14, 24, 18);
+        // Anse fermée
+        QPainterPath shackle;
+        shackle.moveTo(8.5, 10.5);
+        shackle.lineTo(8.5, 6.5);
+        shackle.arcTo(QRectF(8.5, 3.5, 7.0, 6.0), 180, -180);
+        shackle.lineTo(15.5, 10.5);
+        painter.drawPath(shackle);
     } else {
-        // Anse ouverte : décalée vers le haut et sur le côté
-        painter.drawArc(8, 2, 16, 16, 0, 180 * 16);
-        painter.drawLine(8, 10, 8, 18);
-        painter.drawLine(24, 10, 24, 12);
+        // Anse ouverte levée
+        QPainterPath shackle;
+        shackle.moveTo(8.5, 10.5);
+        shackle.lineTo(8.5, 5.5);
+        shackle.arcTo(QRectF(8.5, 2.5, 7.0, 6.0), 180, -180);
+        shackle.lineTo(15.5, 7.5);
+        painter.drawPath(shackle);
     }
 
-    // Dessiner le corps du cadenas (rectangle)
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(bodyColor);
-    painter.drawRoundedRect(5, 16, 22, 12, 2, 2);
+    painter.setBrush(locked ? QColor(color.red(), color.green(), color.blue(), 45) : Qt::NoBrush);
+    painter.drawRoundedRect(bodyRect, 2.5, 2.5);
 
-    // Dessiner le trou de serrure
-    painter.setBrush(QColor("#212121"));
-    painter.drawEllipse(14, 20, 4, 4);
-
-    painter.end();
-    return QIcon(pixmap);
-}
-
-QIcon StickyWindow::createPlusIcon() {
-    QPixmap pixmap(32, 32);
-    pixmap.fill(Qt::transparent);
-    QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    QColor color("#757575");
-    painter.setPen(QPen(color, 3, Qt::SolidLine, Qt::RoundCap));
-    
-    // Ligne horizontale
-    painter.drawLine(8, 16, 24, 16);
-    // Ligne verticale
-    painter.drawLine(16, 8, 16, 24);
-
-    painter.end();
-    return QIcon(pixmap);
-}
-
-QIcon StickyWindow::createColorBadgeIcon(const QString& hexColor) {
-    QPixmap pixmap(32, 32);
-    pixmap.fill(Qt::transparent);
-    QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    QColor color(hexColor);
+    // Trou de serrure
     painter.setBrush(color);
-    painter.setPen(QPen(QColor("#757575"), 1.5));
-    painter.drawEllipse(6, 6, 20, 20);
+    painter.drawEllipse(QPointF(12.0, 14.0), 1.1, 1.1);
+    painter.drawLine(QPointF(12.0, 14.5), QPointF(12.0, 17.0));
 
     painter.end();
     return QIcon(pixmap);
 }
 
-QIcon StickyWindow::createFormatIcon() {
-    QPixmap pixmap(32, 32);
+QIcon StickyWindow::createPlusIcon(const QColor& color) {
+    QPixmap pixmap(24, 24);
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
-    QColor color("#757575");
-    QFont font = painter.font();
-    font.setPointSize(14);
-    font.setBold(true);
-    painter.setFont(font);
-    painter.setPen(color);
-    painter.drawText(QRect(0, 0, 32, 28), Qt::AlignCenter, "A");
+    QPen pen(color, 2.0, Qt::SolidLine, Qt::RoundCap);
+    painter.setPen(pen);
+    painter.drawLine(QPointF(6.0, 12.0), QPointF(18.0, 12.0));
+    painter.drawLine(QPointF(12.0, 6.0), QPointF(12.0, 18.0));
 
-    // Dessiner une barre de soulignement de couleur sous le A
-    painter.setPen(QPen(color, 2));
-    painter.drawLine(8, 26, 24, 26);
+    painter.end();
+    return QIcon(pixmap);
+}
+
+QIcon StickyWindow::createColorBadgeIcon(const QString& hexColor, const QColor& strokeColor) {
+    QPixmap pixmap(24, 24);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+
+    // Anneau extérieur fin (Style sélecteur de couleur)
+    painter.setPen(QPen(strokeColor, 1.6, Qt::SolidLine, Qt::RoundCap));
+    painter.setBrush(Qt::NoBrush);
+    painter.drawEllipse(QRectF(4.0, 4.0, 16.0, 16.0));
+
+    // 4 petits repères diagonaux discrets
+    painter.setPen(QPen(strokeColor, 1.4, Qt::SolidLine, Qt::RoundCap));
+    painter.drawLine(QPointF(6.5, 6.5), QPointF(8.5, 8.5));
+    painter.drawLine(QPointF(17.5, 6.5), QPointF(15.5, 8.5));
+    painter.drawLine(QPointF(17.5, 17.5), QPointF(15.5, 15.5));
+    painter.drawLine(QPointF(6.5, 17.5), QPointF(8.5, 15.5));
+
+    // Pastille centrale avec la couleur actuelle de la note
+    QColor fill(hexColor);
+    painter.setPen(QPen(strokeColor, 1.0));
+    painter.setBrush(fill);
+    painter.drawEllipse(QRectF(8.5, 8.5, 7.0, 7.0));
+
+    painter.end();
+    return QIcon(pixmap);
+}
+
+QIcon StickyWindow::createFormatIcon(const QColor& color) {
+    QPixmap pixmap(24, 24);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+
+    QPen pen(color, 1.8, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    painter.setPen(pen);
+
+    // Lucide Type (Typographie vectorielle indépendante des polices système)
+    QPolygonF topBar;
+    topBar << QPointF(5.5, 8.0) << QPointF(5.5, 5.0) << QPointF(18.5, 5.0) << QPointF(18.5, 8.0);
+    painter.drawPolyline(topBar);
+
+    painter.drawLine(QPointF(12.0, 5.0), QPointF(12.0, 19.0));
+    painter.drawLine(QPointF(9.0, 19.0), QPointF(15.0, 19.0));
 
     painter.end();
     return QIcon(pixmap);
@@ -1034,31 +1133,7 @@ QIcon StickyWindow::createFormatIcon() {
 
 
 void StickyWindow::toggleAutostart() {
-    QString homePath = QDir::homePath();
-    QString autostartDir = homePath + "/.config/autostart";
-    QString autostartPath = autostartDir + "/tux-it.desktop";
-
-    if (QFile::exists(autostartPath)) {
-        QFile::remove(autostartPath);
-    } else {
-        QDir().mkpath(autostartDir);
-        QFile file(autostartPath);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QTextStream out(&file);
-            out << "[Desktop Entry]\n"
-                << "Name=Tux-It\n"
-                << "Comment=Vos post-its mignons sur le bureau\n"
-                << "Exec=" << homePath << "/.local/bin/tux-it\n"
-                << "Icon=" << homePath << "/.local/share/icons/tux-it.png\n"
-                << "Terminal=false\n"
-                << "Type=Application\n"
-                << "Categories=Utility;Office;\n"
-                << "StartupNotify=true\n";
-            file.close();
-            QFile::setPermissions(autostartPath, QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner | 
-                                                 QFile::ReadGroup | QFile::ReadOther);
-        }
-    }
+    AutostartManager::toggle();
 }
 
 void StickyWindow::setSynced(bool synced) {
@@ -1104,39 +1179,41 @@ void StickyWindow::updateFromModel(const NoteModel& model) {
 
 
 QIcon StickyWindow::createSyncIcon(bool synced, bool enabled) {
-    QPixmap pixmap(32, 32);
+    QPixmap pixmap(24, 24);
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
     if (!enabled) {
         painter.end();
         return QIcon();
     }
 
-    // Définir la couleur du nuage selon le statut de synchro
-    QColor cloudColor = synced ? QColor("#4CAF50") : QColor("#FFA726"); // Vert si synchro, Orange si non sync
+    QColor cloudColor = synced ? QColor("#10b981") : QColor("#f59e0b");
 
-    // Dessiner un nuage vectoriel mimi
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(cloudColor);
+    // Nuage vectoriel Lucide
+    QPen pen(cloudColor, 1.8, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    painter.setPen(pen);
+    painter.setBrush(QColor(cloudColor.red(), cloudColor.green(), cloudColor.blue(), 35));
 
-    // Dessiner le corps du nuage (plusieurs cercles se chevauchant)
-    painter.drawEllipse(12, 6, 10, 10); // Milieu haut
-    painter.drawEllipse(6, 10, 8, 8);    // Gauche
-    painter.drawEllipse(18, 10, 8, 8);   // Droite
-    painter.drawRect(10, 12, 12, 6);     // Base plate
+    QPainterPath cloud;
+    cloud.moveTo(6.5, 16.5);
+    cloud.lineTo(17.5, 16.5);
+    cloud.arcTo(QRectF(15.0, 12.0, 5.0, 5.0), 270, 180);
+    cloud.arcTo(QRectF(13.0, 8.0, 6.0, 6.0), 0, 120);
+    cloud.arcTo(QRectF(7.5, 6.5, 7.0, 7.0), 60, 150);
+    cloud.arcTo(QRectF(4.0, 11.5, 5.5, 5.5), 150, 120);
+    cloud.closeSubpath();
+    painter.drawPath(cloud);
 
-    // Si synchronisé (synced = true), dessiner un petit check de validation blanc en surimpression
     if (synced) {
-        painter.setPen(QPen(Qt::white, 2));
-        painter.drawLine(12, 13, 14, 15);
-        painter.drawLine(14, 15, 19, 10);
+        painter.setPen(QPen(cloudColor, 2.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        painter.drawLine(QPointF(9.5, 12.0), QPointF(11.5, 14.0));
+        painter.drawLine(QPointF(11.5, 14.0), QPointF(15.0, 9.5));
     } else {
-        // Si non synchronisé (synced = false), dessiner une ligne d'exclamation blanche
-        painter.setPen(QPen(Qt::white, 2));
-        painter.drawLine(16, 10, 16, 13);
-        painter.drawPoint(16, 15);
+        painter.setPen(QPen(cloudColor, 2.0, Qt::SolidLine, Qt::RoundCap));
+        painter.drawLine(QPointF(12.0, 10.0), QPointF(12.0, 12.5));
+        painter.drawPoint(QPointF(12.0, 14.5));
     }
 
     painter.end();

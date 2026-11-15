@@ -167,55 +167,55 @@ Interligne :
 
 ---
 
-# Colors
+# Colors 2026 (Neo-Pastel)
 
-Le logiciel doit proposer plusieurs couleurs prédéfinies.
+Le logiciel propose les couleurs prédéfinies modernes suivantes :
 
-## Jaune
+## Ambre (Jaune moderne)
 
-#FFF59D
-
----
-
-## Bleu
-
-#90CAF9
+#FEF08A
 
 ---
 
-## Vert
+## Azur (Bleu moderne)
 
-#A5D6A7
-
----
-
-## Rose
-
-#F8BBD0
+#BAE6FD
 
 ---
 
-## Orange
+## Sauge (Vert moderne)
 
-#FFCC80
-
----
-
-## Violet
-
-#CE93D8
+#BBF7D0
 
 ---
 
-## Gris
+## Rose Poudré
 
-#E0E0E0
+#FBCFE8
 
 ---
 
-## Blanc
+## Pêche (Orange moderne)
 
-#FAFAFA
+#FED7AA
+
+---
+
+## Lavande (Violet moderne)
+
+#E9D5FF
+
+---
+
+## Ardoise (Gris moderne)
+
+#E2E8F0
+
+---
+
+## Blanc / Minéral
+
+#F8FAFC
 
 ---
 
